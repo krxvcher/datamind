@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataMind — AI-аналитика для бизнеса</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://openfpcdn.io/fingerprintjs/v4/iife.min.js"></script>
+<style>
+:root {
+  --bg:#07080f;--surface:#0f1018;--surface2:#171820;--surface3:#1e1f2c;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --accent:#5b8af5;--accent2:#00c9a7;--accent3:#ff6b82;
+  --accent-glow:rgba(91,138,245,0.15);
+  --text:#eeeef8;--muted:#7878a0;--muted2:#4a4a68;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 60% at 15% 5%,rgba(91,138,245,0.08) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(0,201,167,0.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
+
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;}
+.logo span{color:var(--accent);}
+.logo sub{font-size:10px;font-weight:400;color:var(--muted);vertical-align:super;margin-left:3px;font-family:'DM Sans',sans-serif;}
+.pill{font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;background:rgba(91,138,245,0.1);border:1px solid rgba(91,138,245,0.25);color:#8aabff;letter-spacing:0.5px;text-transform:uppercase;}
+
+.hero{position:relative;z-index:1;text-align:center;padding:64px 24px 40px;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:var(--accent2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;}
+.hero-tag::before,.hero-tag::after{content:'';width:20px;height:1px;background:var(--accent2);opacity:0.4;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(34px,5vw,60px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;}
+h1 em{font-style:normal;background:linear-gradient(130deg,var(--accent) 20%,var(--accent2) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 48px;line-height:1.65;font-weight:300;}
+
+.section-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:14px;text-align:center;}
+.niches{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px;}
+.niche-btn{display:flex;align-items:center;gap:10px;padding:13px 20px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all 0.2s;}
+.niche-btn:hover{border-color:var(--accent);color:var(--text);background:var(--surface2);transform:translateY(-1px);}
+.niche-btn.active{border-color:var(--accent);background:var(--accent-glow);color:var(--text);box-shadow:0 0 30px var(--accent-glow);}
+.niche-btn .icon{font-size:18px;}
+
+.analysis-types{display:none;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;animation:fadeUp 0.3s ease;}
+.analysis-types.visible{display:flex;}
+.type-btn{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all 0.2s;}
+.type-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+.type-btn.active{border-color:var(--accent2);background:rgba(0,201,167,0.1);color:var(--accent2);}
+
+.form-card{display:none;max-width:660px;margin:0 auto 40px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;position:relative;z-index:1;box-shadow:0 0 60px rgba(91,138,245,0.08);animation:fadeUp 0.35s ease;}
+.form-card.visible{display:block;}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.form-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:5px;}
+.form-subtitle{font-size:13px;color:var(--muted);margin-bottom:26px;font-weight:300;}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.form-grid.single{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field.full{grid-column:1/-1;}
+label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+input::placeholder,textarea::placeholder{color:var(--muted2);}
+select option{background:#1a1a2e;}
+textarea{resize:vertical;min-height:76px;}
+
+.months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;}
+.month-field{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.month-field label{font-size:9px;color:var(--muted2);letter-spacing:0;text-transform:none;}
+.month-field input{text-align:center;padding:8px 4px;font-size:12px;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+.submit-btn{width:100%;padding:15px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent) 0%,#7c5cbf 100%);color:white;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,138,245,0.35);}
+
+.loading-overlay{display:none;max-width:660px;margin:0 auto 40px;text-align:center;padding:56px 24px;z-index:1;position:relative;}
+.loading-overlay.visible{display:block;}
+.spinner{width:44px;height:44px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+.loading-text{font-size:14px;color:var(--muted);font-weight:300;}
+.loading-step{margin-top:8px;font-size:12px;color:var(--muted2);}
+
+.result-card{display:none;max-width:660px;margin:0 auto 60px;position:relative;z-index:1;animation:fadeUp 0.45s ease;}
+.result-card.visible{display:block;}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.result-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+.action-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.action-btn:hover{transform:translateY(-1px);}
+.action-btn.excel:hover{border-color:#1DB954;color:#1DB954;background:rgba(29,185,84,0.08);}
+.action-btn.pdf:hover{border-color:#ff6b82;color:#ff6b82;background:rgba(255,107,130,0.08);}
+.action-btn.copy:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow);}
+
+.result-body{background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(91,138,245,0.07);}
+.result-body::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.metric{padding:18px 20px;background:var(--surface2);text-align:center;}
+.metric-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:3px;}
+.metric-val.up{color:var(--accent2);}
+.metric-val.neutral{color:var(--accent);}
+.metric-val.down{color:var(--accent3);}
+.metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.result-content{padding:28px 32px;font-size:14px;line-height:1.85;color:#c0c0da;}
+.result-content strong{color:var(--text);font-weight:700;display:block;margin-top:18px;margin-bottom:6px;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:0.5px;text-transform:uppercase;border-left:3px solid var(--accent);padding-left:10px;}
+.result-content strong:first-child{margin-top:0;}
+
+.export-note{text-align:center;font-size:12px;color:var(--muted2);margin-top:10px;}
+.export-note span{color:var(--accent2);}
+
+.how-section{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:56px 24px;border-top:1px solid var(--border);}
+.how-section h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-1px;}
+.how-section .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:36px;font-weight:300;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.step{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 22px;}
+.step-num{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--border2);line-height:1;margin-bottom:10px;}
+.step h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:7px;}
+.step p{font-size:13px;color:var(--muted);line-height:1.6;font-weight:300;}
+
+/* USAGE COUNTER */
+.usage-bar{position:relative;z-index:1;max-width:660px;margin:0 auto 8px;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 4px;}
+.usage-dots{display:flex;gap:6px;}
+.usage-dot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:background 0.3s;}
+.usage-dot.used{background:var(--accent2);}
+.usage-dot.last{background:var(--accent3);}
+.usage-text{font-size:11px;color:var(--muted2);font-weight:500;}
+/* PAYWALL */
+.paywall-overlay{display:none;position:fixed;inset:0;background:rgba(7,8,15,0.92);backdrop-filter:blur(12px);z-index:100;align-items:center;justify-content:center;padding:24px;}
+.paywall-overlay.visible{display:flex;animation:fadeUp 0.3s ease;}
+.paywall-card{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:48px 40px;max-width:460px;width:100%;text-align:center;position:relative;box-shadow:0 0 80px rgba(91,138,245,0.15);}
+.paywall-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.paywall-icon{font-size:48px;margin-bottom:16px;}
+.paywall-title{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:10px;}
+.paywall-sub{font-size:14px;color:var(--muted);line-height:1.6;font-weight:300;margin-bottom:28px;}
+.paywall-features{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;text-align:left;}
+.paywall-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:#c0c0da;}
+.paywall-feature span{color:var(--accent2);font-weight:700;}
+.paywall-price{margin-bottom:24px;}
+.price-amount{font-family:"Syne",sans-serif;font-size:42px;font-weight:800;color:var(--text);}
+.price-period{font-size:14px;color:var(--muted);margin-left:4px;}
+.price-note{font-size:11px;color:var(--muted2);margin-top:4px;}
+.pay-btn{display:block;width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#7c5cbf);color:white;font-family:"Syne",sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:12px;}
+.pay-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,138,245,0.4);}
+.pay-btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:13px;padding:12px;width:100%;border-radius:12px;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.2s;display:block;margin-bottom:10px;}
+.pay-btn-outline:hover{border-color:var(--accent2);color:var(--accent2);}
+.pay-secure{font-size:11px;color:var(--muted2);margin-top:6px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:640px){
+  header{padding:16px 20px;}
+  .form-card{padding:22px 18px;}
+  .form-grid{grid-template-columns:1fr;}
+  .months-grid{grid-template-columns:repeat(3,1fr);}
+  .steps{grid-template-columns:1fr;}
+  .metrics-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Data<span>Mind</span><sub>AI</sub></div>
+  <div class="pill">Beta · Free</div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-tag">AI-аналитика для бизнеса</div>
+    <h1>Умный анализ вашего<br>бизнеса за <em>30 секунд</em></h1>
+    <p>Введите данные — получите выводы, прогнозы и план действий.<br>Экспорт в <strong style="-webkit-text-fill-color:initial;color:var(--accent2)">PDF</strong> и <strong style="-webkit-text-fill-color:initial;color:#1DB954">Excel</strong> одним кликом.</p>
+
+    <div class="section-label">Выберите тип бизнеса</div>
+    <div class="niches">
+      <button class="niche-btn" onclick="selectNiche('ecom')" id="niche-ecom"><span class="icon">🛒</span>Интернет-магазин</button>
+      <button class="niche-btn" onclick="selectNiche('cafe')" id="niche-cafe"><span class="icon">☕</span>Кафе / Ресторан</button>
+      <button class="niche-btn" onclick="selectNiche('freelance')" id="niche-freelance"><span class="icon">💼</span>Услуги / Фриланс</button>
+      <button class="niche-btn" onclick="selectNiche('retail')" id="niche-retail"><span class="icon">🏪</span>Розничный магазин</button>
+    </div>
+    <div class="analysis-types" id="analysis-types"></div>
+  </div>
+
+  <!-- USAGE BAR -->
+  <div class="usage-bar" id="usage-bar" style="display:none">
+    <div class="usage-dots" id="usage-dots"></div>
+    <div class="usage-text" id="usage-text"></div>
+  </div>
+
+  <div class="form-card" id="form-card">
+    <div class="form-title" id="form-title"></div>
+    <div class="form-subtitle" id="form-subtitle"></div>
+    <div id="form-fields"></div>
+    <button class="submit-btn" onclick="runAnalysis()">✦ Получить AI-анализ</button>
+  </div>
+
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">AI-аналитик обрабатывает данные…</div>
+    <div class="loading-step" id="loading-step">Анализируем показатели</div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <div class="result-title">📊 Результаты анализа</div>
+      <div class="result-actions">
+        <button class="action-btn copy" onclick="copyResult()">📋 Копировать</button>
+        <button class="action-btn excel" onclick="exportExcel()">📗 Excel</button>
+        <button class="action-btn pdf" onclick="exportPDF()">📄 PDF</button>
+      </div>
+    </div>
+    <div class="result-body">
+      <div class="metrics-row" id="metrics-row"></div>
+      <div class="result-content" id="result-content"></div>
+    </div>
+    <div class="export-note">Экспорт в <span>Excel (.xlsx)</span> и <span>PDF</span> — все данные и анализ сохранены</div>
+  </div>
+
+  <div class="how-section">
+    <h2>Как это работает</h2>
+    <p class="sub">Три шага до готового отчёта</p>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h3>Выберите нишу</h3><p>Умная форма подстраивается под ваш бизнес — только нужные поля.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>Введите данные</h3><p>Заполните ключевые показатели. Никаких файлов и интеграций.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Скачайте отчёт</h3><p>AI готовит анализ за 30 секунд. Экспортируйте в PDF или Excel.</p></div>
+    </div>
+  </div>
+  <!-- PAYWALL -->
+  <div class="paywall-overlay" id="paywall-overlay">
+    <div class="paywall-card">
+      <div class="paywall-icon">🔐</div>
+      <div class="paywall-title">Лимит исчерпан</div>
+      <div class="paywall-sub">Вы использовали 3 бесплатных анализа.<br>Получите полный доступ — без ограничений.</div>
+      <div class="paywall-features">
+        <div class="paywall-feature"><span>✓</span> Безлимитные AI-анализы</div>
+        <div class="paywall-feature"><span>✓</span> Экспорт в PDF и Excel</div>
+        <div class="paywall-feature"><span>✓</span> Все 12 форм анализа</div>
+        <div class="paywall-feature"><span>✓</span> История отчётов</div>
+      </div>
+      <div class="paywall-price">
+        <div><span class="price-amount">$9</span><span class="price-period">/ месяц</span></div>
+        <div class="price-note">или $29 за год · отмена в любой момент</div>
+      </div>
+      <a class="pay-btn" href="https://YOUR_LEMONSQUEEZY_LINK" target="_blank" onclick="trackPayClick('monthly')">
+        Получить доступ за $9/мес
+      </a>
+      <a class="pay-btn pay-btn-outline" href="https://YOUR_LEMONSQUEEZY_LINK_YEARLY" target="_blank" onclick="trackPayClick('yearly')">
+        Год за $29 — сэкономить 73%
+      </a>
+      <div class="pay-secure">🔒 Безопасная оплата · <span>Visa, Mastercard, PayPal</span></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const NICHES={
+  ecom:{label:'Интернет-магазин',types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'}]},
+  cafe:{label:'Кафе / Ресторан',types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'}]},
+  freelance:{label:'Услуги / Фриланс',types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'}]},
+  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}]}
+};
+const F={};
+
+F.ecom_sales={
+  title:'Анализ продаж интернет-магазина',subtitle:'Данные за последние 6 месяцев',
+  prompt:d=>`Ты опытный e-commerce аналитик. Проанализируй данные и дай структурированный отчёт.
+Ниша: ${d.name}, Средний чек: ${d.avg_check}₽, Заказов/мес: ${d.orders}, Конверсия: ${d.conversion}%, Возвраты: ${d.returns}%, Топ товары: ${d.top_products}, Выручка: ${d.months}
+
+Используй **ЗАГОЛОВОК** для каждого из разделов:
+**ОБЩАЯ ОЦЕНКА** — краткое резюме состояния.
+**ЧТО РАБОТАЕТ ХОРОШО** — 2-3 сильных стороны с цифрами.
+**ПРОБЛЕМНЫЕ ЗОНЫ** — 2-3 проблемы с объяснением.
+**ТОП-3 ДЕЙСТВИЯ НА ЭТОЙ НЕДЕЛЕ** — конкретные шаги с эффектом.
+**ПРОГНОЗ НА СЛЕДУЮЩИЙ МЕСЯЦ** — ожидаемые показатели.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Ниша / название</label><input type="text" id="f_name" placeholder="Детская одежда"/></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_avg_check" placeholder="2500"/></div>
+    <div class="field"><label>Заказов в месяц</label><input type="number" id="f_orders" placeholder="150"/></div>
+    <div class="field"><label>Конверсия (%)</label><input type="number" id="f_conversion" placeholder="2.3" step="0.1"/></div>
+    <div class="field"><label>Возвраты (%)</label><input type="number" id="f_returns" placeholder="5"/></div>
+    <div class="field full"><label>Топ-3 товара</label><input type="text" id="f_top_products" placeholder="Куртки, джинсы, футболки"/></div>
+  </div>
+  <div class="divider"></div>
+  <label style="display:block;margin-bottom:10px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase">Выручка по месяцам (руб)</label>
+  <div class="months-grid">${['Окт','Ноя','Дек','Янв','Фев','Мар'].map(m=>`<div class="month-field"><label>${m}</label><input type="number" id="f_m_${m}" placeholder="0"/></div>`).join('')}</div>
+  <div class="divider"></div>`,
+  getData:()=>({name:v('f_name','не указано'),avg_check:v('f_avg_check','0'),orders:v('f_orders','0'),conversion:v('f_conversion','0'),returns:v('f_returns','0'),top_products:v('f_top_products','не указано'),months:['Окт','Ноя','Дек','Янв','Фев','Мар'].map(m=>`${m}: ${v('f_m_'+m,'0')}₽`).join(', ')}),
+  metrics:d=>[{val:d.avg_check?parseInt(d.avg_check).toLocaleString('ru')+'₽':'—',lbl:'Средний чек',cls:'neutral'},{val:d.orders||'—',lbl:'Заказов/мес',cls:'up'},{val:(d.conversion||'0')+'%',lbl:'Конверсия',cls:'neutral'}]
+};
+
+F.cafe_revenue={
+  title:'Анализ выручки кафе / ресторана',subtitle:'Ключевые показатели заведения',
+  prompt:d=>`Ты консультант ресторанного бизнеса. Проанализируй данные.
+Тип: ${d.type}, Средний чек: ${d.avg_check}₽, Посетителей/день (будни/выходные): ${d.weekday}/${d.weekend}, Аренда: ${d.rent}₽/мес, ФОТ: ${d.fot}₽/мес, Food cost: ${d.foodcost}%, Проблема: ${d.problem}
+
+Используй **ЗАГОЛОВОК**:
+**ФИНАНСОВАЯ КАРТИНА** — выручка, прибыль, точка безубыточности.
+**ОЦЕНКА МЕТРИК** — food cost, labour cost, аренда.
+**ПРОБЛЕМНЫЕ ЗОНЫ** — конкретные потери с цифрами.
+**ТОП-3 ДЕЙСТВИЯ** — с ожидаемым эффектом в рублях.
+**ПРОГНОЗ** — через месяц при выполнении рекомендаций.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Тип заведения</label><select id="f_type"><option>Кофейня</option><option>Кафе</option><option>Ресторан</option><option>Фастфуд</option></select></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_avg_check" placeholder="450"/></div>
+    <div class="field"><label>Посетителей/день (будни)</label><input type="number" id="f_weekday" placeholder="80"/></div>
+    <div class="field"><label>Посетителей/день (выходные)</label><input type="number" id="f_weekend" placeholder="140"/></div>
+    <div class="field"><label>Аренда/мес (руб)</label><input type="number" id="f_rent" placeholder="120000"/></div>
+    <div class="field"><label>ФОТ/мес (руб)</label><input type="number" id="f_fot" placeholder="180000"/></div>
+    <div class="field"><label>Food cost (%)</label><input type="number" id="f_foodcost" placeholder="28"/></div>
+    <div class="field full"><label>Главная проблема</label><textarea id="f_problem" placeholder="Выручка стагнирует 3 месяца..."></textarea></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({type:v('f_type','кафе'),avg_check:v('f_avg_check','0'),weekday:v('f_weekday','0'),weekend:v('f_weekend','0'),rent:v('f_rent','0'),fot:v('f_fot','0'),foodcost:v('f_foodcost','0'),problem:v('f_problem','не указано')}),
+  metrics:d=>{const rev=Math.round((parseInt(d.weekday||0)*22+parseInt(d.weekend||0)*8)*parseInt(d.avg_check||0));return[{val:rev>0?(rev/1000).toFixed(0)+'K₽':'—',lbl:'Выручка/мес',cls:'up'},{val:(d.foodcost||'0')+'%',lbl:'Food cost',cls:parseInt(d.foodcost)>35?'down':'neutral'},{val:d.avg_check?parseInt(d.avg_check).toLocaleString('ru')+'₽':'—',lbl:'Средний чек',cls:'neutral'}];}
+};
+
+F.freelance_income={
+  title:'Анализ дохода фрилансера',subtitle:'Данные по доходам и загрузке',
+  prompt:d=>`Ты бизнес-коуч для фрилансеров. Проанализируй данные.
+Специализация: ${d.spec}, Средний чек: ${d.avg_check}₽, Проектов/мес: ${d.projects}, Часов/неделю: ${d.hours}, Постоянных клиентов: ${d.regular}, Каналы: ${d.sources}, Цель: ${d.goal}
+
+Используй **ЗАГОЛОВОК**:
+**ТЕКУЩИЕ ПОКАЗАТЕЛИ** — почасовая ставка, сравнение с рынком.
+**ПОТОЛОК ДОХОДА** — максимум при текущей модели.
+**СЛАБЫЕ МЕСТА** — что ограничивает рост.
+**КАК ВЫРАСТИ НА 30% ЗА 60 ДНЕЙ** — конкретный план.
+**СТРАТЕГИЯ НА 3 МЕСЯЦА** — для достижения цели.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field full"><label>Специализация</label><input type="text" id="f_spec" placeholder="SMM, веб-разработка, дизайн..."/></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_avg_check" placeholder="35000"/></div>
+    <div class="field"><label>Проектов в месяц</label><input type="number" id="f_projects" placeholder="3"/></div>
+    <div class="field"><label>Часов работы/неделю</label><input type="number" id="f_hours" placeholder="40"/></div>
+    <div class="field"><label>Постоянных клиентов</label><input type="number" id="f_regular" placeholder="2"/></div>
+    <div class="field full"><label>Каналы привлечения</label><input type="text" id="f_sources" placeholder="Сарафан, Upwork, Instagram..."/></div>
+    <div class="field full"><label>Цель на 3 месяца</label><textarea id="f_goal" placeholder="Выйти на 200 000 руб/мес..."></textarea></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({spec:v('f_spec','не указано'),avg_check:v('f_avg_check','0'),projects:v('f_projects','0'),hours:v('f_hours','0'),regular:v('f_regular','0'),sources:v('f_sources','не указано'),goal:v('f_goal','не указано')}),
+  metrics:d=>{const inc=parseInt(d.avg_check||0)*parseInt(d.projects||0);const hr=parseInt(d.hours||0)>0?Math.round(inc/(parseInt(d.hours)*4)):0;return[{val:inc>0?(inc/1000).toFixed(0)+'K₽':'—',lbl:'Доход/мес',cls:'up'},{val:hr>0?hr.toLocaleString('ru')+'₽':'—',lbl:'Ставка/час',cls:'neutral'},{val:(d.regular||'0')+' чел',lbl:'Постоянных клиентов',cls:'neutral'}];}
+};
+
+F.retail_sales={
+  title:'Анализ продаж розничного магазина',subtitle:'Ключевые показатели магазина',
+  prompt:d=>`Ты аналитик розничной торговли. Проанализируй данные.
+Категория: ${d.category}, Выручка: ${d.revenue}₽/мес, Средний чек: ${d.avg_check}₽, Транзакций/день: ${d.transactions}, Маржа: ${d.margin}%, Аренда: ${d.rent}₽/мес, SKU: ${d.sku}, Проблема: ${d.problem}
+
+Используй **ЗАГОЛОВОК**:
+**ФИНАНСОВЫЕ ПОКАЗАТЕЛИ** — прибыль, точка безубыточности.
+**АНАЛИЗ ТРАФИКА** — поток и конверсия.
+**ПРОБЛЕМНЫЕ ЗОНЫ** — что съедает прибыль.
+**ТОП-3 РЕКОМЕНДАЦИИ** — с эффектом в рублях.
+**ПРОГНОЗ НА СЛЕДУЮЩИЙ МЕСЯЦ**`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Категория товаров</label><input type="text" id="f_category" placeholder="Одежда, продукты..."/></div>
+    <div class="field"><label>Выручка/мес (руб)</label><input type="number" id="f_revenue" placeholder="800000"/></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_avg_check" placeholder="1200"/></div>
+    <div class="field"><label>Транзакций/день</label><input type="number" id="f_transactions" placeholder="22"/></div>
+    <div class="field"><label>Маржа (%)</label><input type="number" id="f_margin" placeholder="35"/></div>
+    <div class="field"><label>Аренда/мес (руб)</label><input type="number" id="f_rent" placeholder="90000"/></div>
+    <div class="field"><label>Кол-во SKU</label><input type="number" id="f_sku" placeholder="450"/></div>
+    <div class="field full"><label>Главная проблема</label><textarea id="f_problem" placeholder="Падение трафика, высокие остатки..."></textarea></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({category:v('f_category','не указано'),revenue:v('f_revenue','0'),avg_check:v('f_avg_check','0'),transactions:v('f_transactions','0'),margin:v('f_margin','0'),rent:v('f_rent','0'),sku:v('f_sku','0'),problem:v('f_problem','не указано')}),
+  metrics:d=>{const profit=Math.round(parseInt(d.revenue||0)*parseInt(d.margin||0)/100-parseInt(d.rent||0));return[{val:parseInt(d.revenue||0)>0?(parseInt(d.revenue)/1000).toFixed(0)+'K₽':'—',lbl:'Выручка/мес',cls:'up'},{val:profit>0?(profit/1000).toFixed(0)+'K₽':'—',lbl:'Прибыль/мес',cls:profit>0?'up':'down'},{val:(d.margin||'0')+'%',lbl:'Маржа',cls:'neutral'}];}
+};
+
+// ── ECOM: Анализ товаров ──────────────────────────────────────────────────────
+F.ecom_products={
+  title:'Анализ товарной матрицы',subtitle:'Оцените эффективность каждой категории',
+  prompt:d=>`Ты e-commerce аналитик, специалист по товарным матрицам. Проанализируй данные.
+Ниша: ${d.niche}, Всего SKU: ${d.sku}, Категорий: ${d.cats}
+Топ-5 товаров по выручке: ${d.top5}
+Аутсайдеры (не продаются): ${d.flop}
+Средняя маржа: ${d.margin}%, Доля возвратов: ${d.returns}%
+Остатки на складе на сумму: ${d.stock}₽, Оборачиваемость (дней): ${d.turnover}
+Используй **ЗАГОЛОВОК**:
+**ABC-АНАЛИЗ** — что приносит 80% выручки, что балласт.
+**МЁРТВЫЕ ТОВАРЫ** — что заморозило деньги и как это решить.
+**ТОЧКИ РОСТА** — какие категории стоит масштабировать.
+**РЕКОМЕНДАЦИИ ПО МАТРИЦЕ** — что убрать, что добавить, что переоценить.
+**ПЛАН НА 30 ДНЕЙ** — конкретные шаги по оптимизации.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Ниша магазина</label><input type="text" id="f_niche" placeholder="Спортивные товары"/></div>
+    <div class="field"><label>Всего SKU (позиций)</label><input type="number" id="f_sku" placeholder="320"/></div>
+    <div class="field"><label>Количество категорий</label><input type="number" id="f_cats" placeholder="12"/></div>
+    <div class="field"><label>Средняя маржа (%)</label><input type="number" id="f_margin" placeholder="38"/></div>
+    <div class="field"><label>Процент возвратов (%)</label><input type="number" id="f_returns" placeholder="7"/></div>
+    <div class="field"><label>Оборачиваемость (дней)</label><input type="number" id="f_turnover" placeholder="45"/></div>
+    <div class="field"><label>Остатки на складе (руб)</label><input type="number" id="f_stock" placeholder="850000"/></div>
+    <div class="field full"><label>Топ-5 товаров по выручке</label><input type="text" id="f_top5" placeholder="Кроссовки Nike, гантели 10кг, коврик для йоги..."/></div>
+    <div class="field full"><label>Товары-аутсайдеры (плохо продаются)</label><input type="text" id="f_flop" placeholder="Боксёрские груши, скакалки премиум..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({niche:v('f_niche','не указано'),sku:v('f_sku','0'),cats:v('f_cats','0'),margin:v('f_margin','0'),returns:v('f_returns','0'),turnover:v('f_turnover','0'),stock:v('f_stock','0'),top5:v('f_top5','не указано'),flop:v('f_flop','не указано')}),
+  metrics:d=>[{val:d.sku||'—',lbl:'Всего SKU',cls:'neutral'},{val:(d.margin||'0')+'%',lbl:'Средняя маржа',cls:'up'},{val:(d.turnover||'0')+' дн',lbl:'Оборачиваемость',cls:parseInt(d.turnover)>60?'down':'neutral'}]
+};
+
+// ── ECOM: Прогноз выручки ─────────────────────────────────────────────────────
+F.ecom_forecast={
+  title:'Прогноз выручки интернет-магазина',subtitle:'Введите текущие показатели и параметры роста',
+  prompt:d=>`Ты финансовый аналитик e-commerce. Построй реалистичный прогноз.
+Ниша: ${d.niche}, Текущая выручка/мес: ${d.rev}₽, Рост за последние 3 мес: ${d.growth}%
+Рекламный бюджет/мес: ${d.adbudget}₽, ROI рекламы: ${d.roas}x
+Органический трафик/мес: ${d.organic} визитов, Конверсия: ${d.conv}%
+Средний чек: ${d.check}₽, LTV клиента: ${d.ltv}₽
+Планируемые изменения: ${d.plans}
+Используй **ЗАГОЛОВОК**:
+**ТЕКУЩАЯ СИТУАЦИЯ** — оценка текущих показателей относительно рынка.
+**ПРОГНОЗ НА 3 МЕСЯЦА** — помесячная разбивка выручки с обоснованием.
+**ПРОГНОЗ НА 6 МЕСЯЦЕВ** — оптимистичный и пессимистичный сценарий.
+**КЛЮЧЕВЫЕ ДРАЙВЕРЫ РОСТА** — что нужно сделать для достижения прогноза.
+**РИСКИ** — что может помешать и как застраховаться.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Ниша магазина</label><input type="text" id="f_niche" placeholder="Товары для дома"/></div>
+    <div class="field"><label>Выручка сейчас (руб/мес)</label><input type="number" id="f_rev" placeholder="1200000"/></div>
+    <div class="field"><label>Рост за 3 мес (%)</label><input type="number" id="f_growth" placeholder="12" step="0.1"/></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_check" placeholder="3200"/></div>
+    <div class="field"><label>Рекламный бюджет (руб/мес)</label><input type="number" id="f_adbudget" placeholder="150000"/></div>
+    <div class="field"><label>ROI рекламы (ROAS)</label><input type="number" id="f_roas" placeholder="3.5" step="0.1"/></div>
+    <div class="field"><label>Органический трафик/мес</label><input type="number" id="f_organic" placeholder="8000"/></div>
+    <div class="field"><label>Конверсия сайта (%)</label><input type="number" id="f_conv" placeholder="2.1" step="0.1"/></div>
+    <div class="field full"><label>LTV клиента (руб, если знаете)</label><input type="number" id="f_ltv" placeholder="9500"/></div>
+    <div class="field full"><label>Планируемые изменения</label><textarea id="f_plans" placeholder="Запуск новой категории, редизайн сайта, выход на маркетплейс..."></textarea></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({niche:v('f_niche','не указано'),rev:v('f_rev','0'),growth:v('f_growth','0'),check:v('f_check','0'),adbudget:v('f_adbudget','0'),roas:v('f_roas','0'),organic:v('f_organic','0'),conv:v('f_conv','0'),ltv:v('f_ltv','0'),plans:v('f_plans','не указано')}),
+  metrics:d=>[{val:d.rev?Math.round(parseInt(d.rev)/1000)+'K₽':'—',lbl:'Выручка сейчас',cls:'neutral'},{val:(d.growth||'0')+'%',lbl:'Рост за 3 мес',cls:parseInt(d.growth)>0?'up':'down'},{val:d.roas?d.roas+'x':'—',lbl:'ROAS',cls:'up'}]
+};
+
+// ── CAFE: Анализ меню ─────────────────────────────────────────────────────────
+F.cafe_menu={
+  title:'Анализ меню и рентабельности блюд',subtitle:'Узнайте, какие позиции зарабатывают, а какие — тянут вниз',
+  prompt:d=>`Ты эксперт по ресторанному меню и food engineering. Проанализируй меню заведения.
+Тип: ${d.type}, Позиций в меню: ${d.items}, Средний чек: ${d.check}₽
+Самые продаваемые блюда: ${d.bestsellers}
+Блюда с высокой маржой: ${d.highmargin}
+Блюда с низкой маржой: ${d.lowmargin}
+Кол-во позиций обновлялось последний раз: ${d.lastupdate}
+Доля блюд дня / спецпредложений: ${d.specials}%
+Процент списаний продуктов: ${d.waste}%
+Используй **ЗАГОЛОВОК**:
+**МАТРИЦА МЕНЮ (STARS/PLOWHORSES/PUZZLES/DOGS)** — классификация позиций.
+**ЗВЁЗДЫ МЕНЮ** — что нужно продвигать и масштабировать.
+**ПРОБЛЕМНЫЕ ПОЗИЦИИ** — что удалить или переработать.
+**ЦЕНОВАЯ СТРАТЕГИЯ** — как скорректировать цены для роста прибыли.
+**ПЛАН ОБНОВЛЕНИЯ МЕНЮ** — конкретные изменения на следующий месяц.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Тип заведения</label><select id="f_type"><option>Кофейня</option><option>Кафе</option><option>Ресторан</option><option>Фастфуд</option><option>Пиццерия</option><option>Суши-бар</option></select></div>
+    <div class="field"><label>Позиций в меню</label><input type="number" id="f_items" placeholder="48"/></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_check" placeholder="650"/></div>
+    <div class="field"><label>Списания продуктов (%)</label><input type="number" id="f_waste" placeholder="8"/></div>
+    <div class="field"><label>Доля спецпредложений (%)</label><input type="number" id="f_specials" placeholder="15"/></div>
+    <div class="field"><label>Последнее обновление меню</label><select id="f_lastupdate"><option>Менее месяца назад</option><option>1-3 месяца назад</option><option>3-6 месяцев назад</option><option>Более полугода назад</option><option>Никогда не обновляли</option></select></div>
+    <div class="field full"><label>Самые продаваемые блюда</label><input type="text" id="f_bestsellers" placeholder="Капучино, авокадо-тост, сырники..."/></div>
+    <div class="field full"><label>Блюда с высокой маржой</label><input type="text" id="f_highmargin" placeholder="Авторские напитки, десерты..."/></div>
+    <div class="field full"><label>Блюда с низкой маржой / убыточные</label><input type="text" id="f_lowmargin" placeholder="Бизнес-ланч, детское меню..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({type:v('f_type','кафе'),items:v('f_items','0'),check:v('f_check','0'),waste:v('f_waste','0'),specials:v('f_specials','0'),lastupdate:v('f_lastupdate','не указано'),bestsellers:v('f_bestsellers','не указано'),highmargin:v('f_highmargin','не указано'),lowmargin:v('f_lowmargin','не указано')}),
+  metrics:d=>[{val:d.items||'—',lbl:'Позиций в меню',cls:'neutral'},{val:(d.waste||'0')+'%',lbl:'Списания',cls:parseInt(d.waste)>10?'down':'up'},{val:d.check?parseInt(d.check).toLocaleString('ru')+'₽':'—',lbl:'Средний чек',cls:'neutral'}]
+};
+
+// ── CAFE: Трафик ──────────────────────────────────────────────────────────────
+F.cafe_traffic={
+  title:'Анализ посещаемости и трафика',subtitle:'Разберём потоки гостей и точки роста',
+  prompt:d=>`Ты консультант по операционной эффективности ресторанного бизнеса. Проанализируй трафик заведения.
+Тип: ${d.type}, Адрес/локация: ${d.location}
+Посетителей/день будни: ${d.weekday}, выходные: ${d.weekend}
+Пиковые часы: ${d.peak}, мёртвые часы: ${d.dead}
+Средняя продолжительность визита (мин): ${d.duration}
+Процент повторных гостей: ${d.repeat}%
+Источники трафика: ${d.sources}
+Оценка на картах (Google/2GIS): ${d.rating}, Кол-во отзывов: ${d.reviews}
+Используй **ЗАГОЛОВОК**:
+**АНАЛИЗ ТРАФИКА** — оценка потока, сравнение с нормой для типа заведения.
+**ПИКИ И ПРОВАЛЫ** — как использовать мёртвые часы для выручки.
+**ПОРТРЕТ ГОСТЯ** — кто ваш клиент и как его удержать.
+**СТРАТЕГИЯ РОСТА ТРАФИКА** — конкретные каналы с прогнозом эффекта.
+**ПЛАН НА БЛИЖАЙШИЙ МЕСЯЦ** — действия с дедлайнами.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Тип заведения</label><select id="f_type"><option>Кофейня</option><option>Кафе</option><option>Ресторан</option><option>Фастфуд</option><option>Пиццерия</option></select></div>
+    <div class="field"><label>Локация (ТЦ, улица, офис...)</label><input type="text" id="f_location" placeholder="Центр города, пешеходная зона"/></div>
+    <div class="field"><label>Посетителей/день (будни)</label><input type="number" id="f_weekday" placeholder="90"/></div>
+    <div class="field"><label>Посетителей/день (выходные)</label><input type="number" id="f_weekend" placeholder="160"/></div>
+    <div class="field"><label>Пиковые часы</label><input type="text" id="f_peak" placeholder="08-10, 12-14"/></div>
+    <div class="field"><label>Мёртвые часы</label><input type="text" id="f_dead" placeholder="15-17, после 20:00"/></div>
+    <div class="field"><label>Ср. продолжительность визита (мин)</label><input type="number" id="f_duration" placeholder="25"/></div>
+    <div class="field"><label>Повторные гости (%)</label><input type="number" id="f_repeat" placeholder="35"/></div>
+    <div class="field"><label>Рейтинг на картах</label><input type="number" id="f_rating" placeholder="4.3" step="0.1" min="1" max="5"/></div>
+    <div class="field"><label>Количество отзывов</label><input type="number" id="f_reviews" placeholder="142"/></div>
+    <div class="field full"><label>Откуда приходят гости</label><input type="text" id="f_sources" placeholder="Пешеходный трафик, Instagram, сарафан, Яндекс.Карты..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({type:v('f_type','кафе'),location:v('f_location','не указано'),weekday:v('f_weekday','0'),weekend:v('f_weekend','0'),peak:v('f_peak','не указано'),dead:v('f_dead','не указано'),duration:v('f_duration','0'),repeat:v('f_repeat','0'),rating:v('f_rating','0'),reviews:v('f_reviews','0'),sources:v('f_sources','не указано')}),
+  metrics:d=>[{val:d.weekday||'—',lbl:'Гостей/день (будни)',cls:'neutral'},{val:(d.repeat||'0')+'%',lbl:'Повторные гости',cls:parseInt(d.repeat)>40?'up':'neutral'},{val:d.rating?d.rating+'★':'—',lbl:'Рейтинг',cls:parseFloat(d.rating)>=4.5?'up':parseFloat(d.rating)<4?'down':'neutral'}]
+};
+
+// ── FREELANCE: Клиенты ────────────────────────────────────────────────────────
+F.freelance_clients={
+  title:'Анализ клиентской базы',subtitle:'Разберём, откуда приходят деньги и как удержать лучших клиентов',
+  prompt:d=>`Ты бизнес-консультант по развитию клиентской базы для фрилансеров и малого бизнеса. Проанализируй.
+Специализация: ${d.spec}
+Всего клиентов за всё время: ${d.total}, Активных сейчас: ${d.active}
+Постоянных (3+ заказа): ${d.loyal}, Разовых: ${d.oneshot}
+Средний чек разовых клиентов: ${d.check_one}₽, постоянных: ${d.check_loyal}₽
+Самый прибыльный тип клиентов: ${d.best_type}
+Откуда приходят новые клиенты: ${d.channels}
+Причины отказов / потерь: ${d.churn}
+Используй **ЗАГОЛОВОК**:
+**АНАЛИЗ КЛИЕНТСКОЙ БАЗЫ** — структура, LTV, ключевые метрики.
+**ЛУЧШИЕ И ХУДШИЕ КЛИЕНТЫ** — кого удерживать, от кого отказаться.
+**КАНАЛЫ ПРИВЛЕЧЕНИЯ** — что работает, куда вкладывать время.
+**СТРАТЕГИЯ УДЕРЖАНИЯ** — как увеличить процент постоянных клиентов.
+**ПЛАН РОСТА БАЗЫ НА 3 МЕСЯЦА** — конкретные шаги.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field full"><label>Специализация / услуга</label><input type="text" id="f_spec" placeholder="Веб-дизайн, копирайтинг, SMM..."/></div>
+    <div class="field"><label>Всего клиентов (за всё время)</label><input type="number" id="f_total" placeholder="47"/></div>
+    <div class="field"><label>Активных клиентов сейчас</label><input type="number" id="f_active" placeholder="8"/></div>
+    <div class="field"><label>Постоянных (3+ заказа)</label><input type="number" id="f_loyal" placeholder="5"/></div>
+    <div class="field"><label>Разовых клиентов</label><input type="number" id="f_oneshot" placeholder="32"/></div>
+    <div class="field"><label>Средний чек разовых (руб)</label><input type="number" id="f_check_one" placeholder="18000"/></div>
+    <div class="field"><label>Средний чек постоянных (руб)</label><input type="number" id="f_check_loyal" placeholder="35000"/></div>
+    <div class="field full"><label>Самый прибыльный тип клиентов</label><input type="text" id="f_best_type" placeholder="Малый бизнес, стартапы, агентства..."/></div>
+    <div class="field full"><label>Каналы привлечения клиентов</label><input type="text" id="f_channels" placeholder="Сарафан, Telegram, Upwork, холодные письма..."/></div>
+    <div class="field full"><label>Причины отказов / потерь клиентов</label><input type="text" id="f_churn" placeholder="Цена, нашли дешевле, нет обратной связи..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({spec:v('f_spec','не указано'),total:v('f_total','0'),active:v('f_active','0'),loyal:v('f_loyal','0'),oneshot:v('f_oneshot','0'),check_one:v('f_check_one','0'),check_loyal:v('f_check_loyal','0'),best_type:v('f_best_type','не указано'),channels:v('f_channels','не указано'),churn:v('f_churn','не указано')}),
+  metrics:d=>{const loyalty=d.total>0?Math.round(parseInt(d.loyal)/parseInt(d.total)*100):0;return[{val:d.active||'—',lbl:'Активных клиентов',cls:'neutral'},{val:loyalty+'%',lbl:'Доля постоянных',cls:loyalty>30?'up':'down'},{val:d.check_loyal?parseInt(d.check_loyal).toLocaleString('ru')+'₽':'—',lbl:'Чек постоянных',cls:'up'}];}
+};
+
+// ── FREELANCE: Рост ───────────────────────────────────────────────────────────
+F.freelance_growth={
+  title:'Стратегия роста и масштабирования',subtitle:'Построим план выхода на новый уровень дохода',
+  prompt:d=>`Ты стратег для фрилансеров и владельцев сервисного микробизнеса. Разработай стратегию роста.
+Специализация: ${d.spec}, Опыт: ${d.exp} лет
+Текущий доход/мес: ${d.income}₽, Желаемый доход: ${d.target}₽
+Работает в одиночку или с командой: ${d.team}
+Слабое место: ${d.weakness}
+Сильная сторона: ${d.strength}
+Готовность к инвестициям в рост: ${d.invest}₽/мес
+Рассматривает: ${d.options}
+Используй **ЗАГОЛОВОК**:
+**ОЦЕНКА ТЕКУЩЕЙ ПОЗИЦИИ** — где находишься на рынке, потолок роста.
+**СТРАТЕГИИ МАСШТАБИРОВАНИЯ** — 3 пути с плюсами и минусами каждого.
+**БЫСТРЫЕ ПОБЕДЫ (0-30 ДНЕЙ)** — что даст результат немедленно.
+**ПЛАН НА 90 ДНЕЙ** — пошаговый roadmap к цели.
+**РИСКИ И КАК ИХ ИЗБЕЖАТЬ** — что может пойти не так.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field full"><label>Специализация</label><input type="text" id="f_spec" placeholder="iOS-разработка, SEO, бухгалтерские услуги..."/></div>
+    <div class="field"><label>Опыт в нише (лет)</label><input type="number" id="f_exp" placeholder="4"/></div>
+    <div class="field"><label>Текущий доход/мес (руб)</label><input type="number" id="f_income" placeholder="120000"/></div>
+    <div class="field"><label>Желаемый доход/мес (руб)</label><input type="number" id="f_target" placeholder="300000"/></div>
+    <div class="field"><label>Работаете с командой?</label><select id="f_team"><option value="в одиночку">В одиночку</option><option value="с 1-2 субподрядчиками">С 1-2 субподрядчиками</option><option value="с командой 3-5 чел">Команда 3-5 чел</option><option value="с командой 5+ чел">Команда 5+ чел</option></select></div>
+    <div class="field"><label>Готовность инвестировать (руб/мес)</label><input type="number" id="f_invest" placeholder="20000"/></div>
+    <div class="field full"><label>Ваше главное слабое место</label><input type="text" id="f_weakness" placeholder="Нет системы продаж, плохо делегирую, нет личного бренда..."/></div>
+    <div class="field full"><label>Ваша главная сильная сторона</label><input type="text" id="f_strength" placeholder="Высокое качество работы, узкая экспертиза, лояльные клиенты..."/></div>
+    <div class="field full"><label>Что рассматриваете для роста</label><textarea id="f_options" placeholder="Поднять цены, создать курс, нанять помощника, выйти на зарубежный рынок..."></textarea></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({spec:v('f_spec','не указано'),exp:v('f_exp','0'),income:v('f_income','0'),target:v('f_target','0'),team:v('f_team','не указано'),invest:v('f_invest','0'),weakness:v('f_weakness','не указано'),strength:v('f_strength','не указано'),options:v('f_options','не указано')}),
+  metrics:d=>{const gap=parseInt(d.target||0)-parseInt(d.income||0);const pct=d.income>0?Math.round(gap/parseInt(d.income)*100):0;return[{val:d.income?Math.round(parseInt(d.income)/1000)+'K₽':'—',lbl:'Текущий доход',cls:'neutral'},{val:d.target?Math.round(parseInt(d.target)/1000)+'K₽':'—',lbl:'Цель',cls:'up'},{val:pct>0?'+'+pct+'%':'—',lbl:'Нужен рост',cls:'neutral'}];}
+};
+
+// ── RETAIL: Остатки ───────────────────────────────────────────────────────────
+F.retail_inventory={
+  title:'Анализ складских остатков',subtitle:'Найдём замороженные деньги и ускорим оборот',
+  prompt:d=>`Ты аналитик товарных запасов и закупок розничного бизнеса. Проанализируй склад.
+Категория товаров: ${d.category}
+Сумма остатков на складе: ${d.stock}₽
+Неликвидные остатки (не продавались 60+ дней): ${d.deadstock}₽
+Оборачиваемость склада (дней): ${d.turnover}
+Доля out-of-stock (% времени нет в наличии): ${d.oos}%
+Поставщиков: ${d.suppliers}, Среднее время поставки (дней): ${d.leadtime}
+Самые проблемные позиции по остаткам: ${d.problems}
+Используй **ЗАГОЛОВОК**:
+**ОЦЕНКА СКЛАДСКОЙ ЭФФЕКТИВНОСТИ** — сколько денег заморожено и насколько это критично.
+**НЕЛИКВИДЫ И КАК ОТ НИХ ИЗБАВИТЬСЯ** — конкретные методы с расчётом потерь.
+**ОПТИМИЗАЦИЯ ЗАКУПОК** — как закупать умнее, меньше хранить, не терять продажи.
+**СИСТЕМА УПРАВЛЕНИЯ ОСТАТКАМИ** — простая система для контроля.
+**ПЛАН НА 30 ДНЕЙ** — приоритеты по расчистке склада.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Категория товаров</label><input type="text" id="f_category" placeholder="Одежда, электроника, продукты..."/></div>
+    <div class="field"><label>Остатки на складе (руб)</label><input type="number" id="f_stock" placeholder="1200000"/></div>
+    <div class="field"><label>Неликвиды 60+ дней (руб)</label><input type="number" id="f_deadstock" placeholder="380000"/></div>
+    <div class="field"><label>Оборачиваемость (дней)</label><input type="number" id="f_turnover" placeholder="52"/></div>
+    <div class="field"><label>Out-of-stock (%)</label><input type="number" id="f_oos" placeholder="8"/></div>
+    <div class="field"><label>Количество поставщиков</label><input type="number" id="f_suppliers" placeholder="6"/></div>
+    <div class="field"><label>Среднее время поставки (дней)</label><input type="number" id="f_leadtime" placeholder="14"/></div>
+    <div class="field full"><label>Самые проблемные позиции</label><input type="text" id="f_problems" placeholder="Зимние куртки XXL, устаревшая электроника..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({category:v('f_category','не указано'),stock:v('f_stock','0'),deadstock:v('f_deadstock','0'),turnover:v('f_turnover','0'),oos:v('f_oos','0'),suppliers:v('f_suppliers','0'),leadtime:v('f_leadtime','0'),problems:v('f_problems','не указано')}),
+  metrics:d=>{const deadpct=d.stock>0?Math.round(parseInt(d.deadstock||0)/parseInt(d.stock)*100):0;return[{val:d.stock?Math.round(parseInt(d.stock)/1000)+'K₽':'—',lbl:'Остатки на складе',cls:'neutral'},{val:deadpct+'%',lbl:'Доля неликвидов',cls:deadpct>20?'down':deadpct>10?'neutral':'up'},{val:(d.turnover||'0')+' дн',lbl:'Оборачиваемость',cls:parseInt(d.turnover)>60?'down':'neutral'}];}
+};
+
+// ── RETAIL: Прогноз ───────────────────────────────────────────────────────────
+F.retail_forecast={
+  title:'Прогноз продаж розничного магазина',subtitle:'Планирование выручки и закупок на следующий период',
+  prompt:d=>`Ты аналитик розничных продаж. Построй прогноз и дай рекомендации по планированию.
+Категория: ${d.category}, Форматы: ${d.format}
+Выручка за последние 3 месяца: ${d.rev3}
+Сезонность: ${d.season}
+Средний чек: ${d.check}₽, Транзакций/день: ${d.trx}
+Планируемые акции / события: ${d.promos}
+Открытие новых точек / закрытие: ${d.expansion}
+Конкурентная ситуация: ${d.competition}
+Используй **ЗАГОЛОВОК**:
+**АНАЛИЗ ДИНАМИКИ** — тренды за последние месяцы.
+**ПРОГНОЗ НА СЛЕДУЮЩИЙ МЕСЯЦ** — выручка, трафик, средний чек с обоснованием.
+**ПРОГНОЗ НА КВАРТАЛ** — оптимистичный / базовый / пессимистичный сценарий.
+**РЕКОМЕНДАЦИИ ПО ЗАКУПКАМ** — сколько и чего закупать под прогноз.
+**ПЛАН АКЦИЙ И СТИМУЛИРОВАНИЯ** — что запустить для выполнения плана.`,
+  fields:()=>`<div class="form-grid">
+    <div class="field"><label>Категория товаров</label><input type="text" id="f_category" placeholder="Одежда, продукты питания..."/></div>
+    <div class="field"><label>Формат магазина</label><select id="f_format"><option>Одна точка</option><option>2-3 точки</option><option>Сеть 4+ точек</option><option>Офлайн + онлайн</option></select></div>
+    <div class="field"><label>Средний чек (руб)</label><input type="number" id="f_check" placeholder="1400"/></div>
+    <div class="field"><label>Транзакций/день</label><input type="number" id="f_trx" placeholder="35"/></div>
+    <div class="field full"><label>Выручка за последние 3 месяца</label><input type="text" id="f_rev3" placeholder="Янв: 820 000₽, Фев: 740 000₽, Мар: 910 000₽"/></div>
+    <div class="field full"><label>Сезонность вашего товара</label><select id="f_season"><option value="нет выраженной сезонности">Нет выраженной сезонности</option><option value="пик летом">Пик летом</option><option value="пик зимой">Пик зимой</option><option value="пик осенью">Пик осенью (сентябрь-октябрь)</option><option value="пик перед праздниками">Пик перед праздниками</option></select></div>
+    <div class="field full"><label>Планируемые акции и события</label><input type="text" id="f_promos" placeholder="Распродажа, день рождения магазина, 8 марта..."/></div>
+    <div class="field"><label>Расширение / изменение точек</label><select id="f_expansion"><option value="изменений нет">Изменений нет</option><option value="открываем новую точку">Открываем новую точку</option><option value="закрываем точку">Закрываем точку</option><option value="переезд">Переезд</option></select></div>
+    <div class="field full"><label>Конкурентная ситуация</label><input type="text" id="f_competition" placeholder="Открылся новый конкурент, конкурент закрылся, стабильно..."/></div>
+  </div><div class="divider"></div>`,
+  getData:()=>({category:v('f_category','не указано'),format:v('f_format','одна точка'),check:v('f_check','0'),trx:v('f_trx','0'),rev3:v('f_rev3','не указано'),season:v('f_season','не указано'),promos:v('f_promos','не указано'),expansion:v('f_expansion','не указано'),competition:v('f_competition','не указано')}),
+  metrics:d=>[{val:d.check?parseInt(d.check).toLocaleString('ru')+'₽':'—',lbl:'Средний чек',cls:'neutral'},{val:d.trx||'—',lbl:'Транзакций/день',cls:'neutral'},{val:d.season||'—',lbl:'Сезонность',cls:'neutral'}]
+};
+
+// ── Fingerprint + Usage Counter ───────────────────────────────────────────────
+const FREE_LIMIT = 3;
+const STORAGE_KEY = 'dm_usage_v1';
+let fpHash = null;
+
+async function getFingerprint() {
+  try {
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    const extra = [result.visitorId, Intl.DateTimeFormat().resolvedOptions().timeZone,
+      screen.width+'x'+screen.height, navigator.language, navigator.hardwareConcurrency||0].join('|');
+    let h=0; for(let i=0;i<extra.length;i++){h=((h<<5)-h)+extra.charCodeAt(i);h|=0;}
+    return 'fp_'+Math.abs(h).toString(36);
+  } catch(e) {
+    const fb=[navigator.userAgent,screen.width,screen.height,screen.colorDepth,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,navigator.language,navigator.hardwareConcurrency||0].join('|');
+    let h=0; for(let i=0;i<fb.length;i++){h=((h<<5)-h)+fb.charCodeAt(i);h|=0;}
+    return 'fb_'+Math.abs(h).toString(36);
+  }
+}
+
+function saveUsageAll(data) {
+  const s = JSON.stringify(data);
+  try { localStorage.setItem(STORAGE_KEY, s); } catch(e){}
+  try { sessionStorage.setItem(STORAGE_KEY, s); } catch(e){}
+  try {
+    const exp = new Date(Date.now()+365*24*60*60*1000).toUTCString();
+    document.cookie = STORAGE_KEY+'='+encodeURIComponent(s)+'; expires='+exp+'; path=/; SameSite=Strict';
+  } catch(e){}
+}
+
+function loadUsageAll() {
+  const sources=[];
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r)sources.push(JSON.parse(r));}catch(e){}
+  try{const r=sessionStorage.getItem(STORAGE_KEY);if(r)sources.push(JSON.parse(r));}catch(e){}
+  try{
+    const m=document.cookie.match(new RegExp(STORAGE_KEY+'=([^;]+)'));
+    if(m)sources.push(JSON.parse(decodeURIComponent(m[1])));
+  }catch(e){}
+  if(!sources.length)return{};
+  // Take record with highest count (anti-tamper: clearing one storage won't help)
+  return sources.reduce((best,cur)=>{
+    const b=fpHash&&best[fpHash]?best[fpHash]:0;
+    const c=fpHash&&cur[fpHash]?cur[fpHash]:0;
+    return c>b?cur:best;
+  },sources[0]);
+}
+
+function getUsageCount(){return fpHash?(loadUsageAll()[fpHash]||0):0;}
+
+function incrementUsage(){
+  if(!fpHash)return;
+  const data=loadUsageAll();
+  data[fpHash]=(data[fpHash]||0)+1;
+  saveUsageAll(data);
+}
+
+function hasReachedLimit(){return getUsageCount()>=FREE_LIMIT;}
+
+function updateUsageUI(){
+  const count=getUsageCount(), remaining=Math.max(0,FREE_LIMIT-count);
+  const bar=document.getElementById('usage-bar');
+  const dots=document.getElementById('usage-dots');
+  const text=document.getElementById('usage-text');
+  if(!bar)return;
+  bar.style.display='flex';
+  dots.innerHTML=Array.from({length:FREE_LIMIT},(_,i)=>{
+    const used=i<count, isLast=i===FREE_LIMIT-1&&used;
+    return `<div class="usage-dot ${used?(isLast?'last':'used'):''}"></div>`;
+  }).join('');
+  if(remaining===0){text.textContent='Лимит исчерпан';text.style.color='var(--accent3)';}
+  else{text.textContent=`Бесплатно: ${remaining} из ${FREE_LIMIT}`;text.style.color=remaining===1?'var(--accent3)':'var(--muted2)';}
+}
+
+function showPaywall(){
+  document.getElementById('paywall-overlay').classList.add('visible');
+  document.body.style.overflow='hidden';
+}
+
+function trackPayClick(plan){console.log('Pay:',plan);}
+
+(async()=>{
+  fpHash=await getFingerprint();
+  updateUsageUI();
+})();
+
+// ── State ────────────────────────────────────────────────────────────────────
+let cNiche=null,cType=null,rawText='',inputData={},nicheLabel='',typeLabel='';
+const v=(id,def='')=>document.getElementById(id)?.value?.trim()||def;
+
+function selectNiche(n){
+  cNiche=n;cType=null;
+  document.querySelectorAll('.niche-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('niche-'+n).classList.add('active');
+  const c=document.getElementById('analysis-types');
+  c.innerHTML=NICHES[n].types.map(t=>`<button class="type-btn" onclick="selectType('${t.id}','${t.label}')" id="type-${t.id}">${t.label}</button>`).join('');
+  c.classList.add('visible');
+  hide('form-card');hide('result-card');hide('loading');
+}
+
+function selectType(t,lbl){
+  cType=t;typeLabel=lbl;nicheLabel=NICHES[cNiche].label;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('type-'+t).classList.add('active');
+  const key=cNiche+'_'+t,form=F[key];if(!form)return;
+  document.getElementById('form-title').textContent=form.title;
+  document.getElementById('form-subtitle').textContent=form.subtitle;
+  document.getElementById('form-fields').innerHTML=form.fields();
+  show('form-card');hide('result-card');hide('loading');
+  setTimeout(()=>document.getElementById('form-card').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+async function runAnalysis(){
+  // Check limit BEFORE running
+  if(hasReachedLimit()){showPaywall();return;}
+  const key=cNiche+'_'+cType,form=F[key];if(!form)return;
+  inputData=form.getData();
+  hide('form-card');hide('result-card');show('loading');
+  const steps=['Анализируем показатели…','Выявляем паттерны…','Формируем рекомендации…','Готовим отчёт…'];
+  let si=0;const iv=setInterval(()=>{document.getElementById('loading-step').textContent=steps[si++%steps.length];},1100);
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:form.prompt(inputData)}]})});
+    const d=await r.json();clearInterval(iv);
+    rawText=d.content?.map(c=>c.text||'').join('')||'Не удалось получить анализ.';
+    incrementUsage();
+    updateUsageUI();
+    renderResult(rawText,form.metrics?form.metrics(inputData):[]);
+  }catch(e){clearInterval(iv);rawText='Ошибка при получении анализа.';renderResult(rawText,[]);}
+}
+
+function renderResult(text,metrics){
+  hide('loading');
+  const mr=document.getElementById('metrics-row');
+  mr.innerHTML=metrics.map(m=>`<div class="metric"><div class="metric-val ${m.cls||''}">${m.val}</div><div class="metric-label">${m.lbl}</div></div>`).join('');
+  document.getElementById('result-content').innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+  show('result-card');
+  setTimeout(()=>document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+function show(id){document.getElementById(id).classList.add('visible');}
+function hide(id){document.getElementById(id).classList.remove('visible');}
+
+function copyResult(){
+  navigator.clipboard.writeText(rawText).then(()=>{
+    const b=document.querySelector('.action-btn.copy');b.textContent='✓ Скопировано';
+    setTimeout(()=>b.textContent='📋 Копировать',2000);
+  });
+}
+
+// ── EXCEL EXPORT ───────────────────────────────────────────────────────────────
+function exportExcel(){
+  if(!rawText)return;
+  const wb=XLSX.utils.book_new();
+  const date=new Date().toLocaleDateString('ru-RU');
+
+  // Sheet 1: Input data
+  const iRows=[['DataMind AI — Входные данные'],['Дата анализа',date],['Ниша',nicheLabel],['Тип анализа',typeLabel],['','']];
+  Object.entries(inputData).forEach(([k,val])=>iRows.push([k,val]));
+  const ws1=XLSX.utils.aoa_to_sheet(iRows);
+  ws1['!cols']=[{wch:28},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Входные данные');
+
+  // Sheet 2: Sections
+  const sections=parseSections(rawText);
+  const aRows=[['DataMind AI — Анализ'],[''],['Раздел','Содержание']];
+  sections.forEach(s=>aRows.push([s.title,s.body]));
+  const ws2=XLSX.utils.aoa_to_sheet(aRows);
+  ws2['!cols']=[{wch:30},{wch:90}];
+  XLSX.utils.book_append_sheet(wb,ws2,'AI Анализ');
+
+  XLSX.writeFile(wb,`datamind-${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+// ── PDF EXPORT ─────────────────────────────────────────────────────────────────
+function exportPDF(){
+  if(!rawText)return;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),mg=18,cw=pw-mg*2;
+  let y=0;
+  const newPage=()=>{doc.addPage();y=22;drawFooter();};
+  const check=(need=10)=>{if(y+need>ph-16)newPage();};
+
+  const drawFooter=()=>{
+    const pg=doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setFillColor(245,245,252);doc.rect(0,ph-10,pw,10,'F');
+    doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(150,150,180);
+    doc.text('DataMind AI · datamind.app',mg,ph-4);
+    doc.text(`Стр. ${pg}`,pw-mg,ph-4,{align:'right'});
+  };
+
+  // Header
+  doc.setFillColor(30,32,55);doc.rect(0,0,pw,14,'F');
+  doc.setFillColor(91,138,245);doc.rect(0,12,pw,2,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('DataMind AI',mg,9);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(180,195,255);
+  doc.text('Business Analytics Report · '+new Date().toLocaleDateString('ru-RU'),pw-mg,9,{align:'right'});
+  y=24;drawFooter();
+
+  // Title
+  doc.setFontSize(22);doc.setFont('helvetica','bold');doc.setTextColor(25,25,50);
+  doc.text('Отчёт AI-аналитика',mg,y);y+=9;
+  doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(100,100,150);
+  doc.text(`${nicheLabel}  ·  ${typeLabel}`,mg,y);y+=10;
+  doc.setDrawColor(91,138,245);doc.setLineWidth(0.4);doc.line(mg,y,pw-mg,y);y+=8;
+
+  // Input data block
+  const entries=Object.entries(inputData).filter(([,v])=>v&&v!=='не указано');
+  if(entries.length){
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);
+    doc.text('ВВЕДЁННЫЕ ДАННЫЕ',mg,y);y+=6;
+    entries.forEach(([k,val],i)=>{
+      check(7);
+      doc.setFillColor(i%2===0?248:255,i%2===0?248:255,i%2===0?255:255);
+      doc.rect(mg,y-4,cw,7,'F');
+      doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(90,90,130);
+      doc.text(String(k),mg+2,y);
+      doc.setFont('helvetica','normal');doc.setTextColor(40,40,70);
+      doc.text(String(val).substring(0,75),mg+58,y);
+      y+=7;
+    });
+    y+=6;
+  }
+
+  // Analysis sections
+  check(15);
+  doc.setDrawColor(200,210,240);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=8;
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);
+  doc.text('AI АНАЛИЗ И РЕКОМЕНДАЦИИ',mg,y);y+=8;
+
+  parseSections(rawText).forEach(sec=>{
+    check(14);
+    doc.setFillColor(91,138,245);doc.rect(mg,y-5,3,9,'F');
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(30,30,70);
+    doc.text(sec.title,mg+6,y);y+=7;
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(65,65,100);
+    doc.splitTextToSize(sec.body,cw).forEach(ln=>{check(6);doc.text(ln,mg,y);y+=5.3;});
+    y+=5;
+  });
+
+  // Finalize all footers
+  const total=doc.internal.getNumberOfPages();
+  for(let i=1;i<=total;i++){doc.setPage(i);drawFooter();}
+
+  doc.save(`datamind-report-${new Date().toISOString().split('T')[0]}.pdf`);
+}
+
+function parseSections(text){
+  const out=[];const parts=text.split(/\*\*(.*?)\*\*/g);
+  for(let i=1;i<parts.length;i+=2){
+    const title=parts[i].trim(),body=(parts[i+1]||'').trim().replace(/\n+/g,' ');
+    if(title&&body)out.push({title,body});
+  }
+  if(!out.length)out.push({title:'Анализ',body:text.replace(/\n+/g,' ')});
+  return out;
+}
+</script>
+</body>
+</html>
