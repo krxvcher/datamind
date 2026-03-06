@@ -734,13 +734,21 @@ async function runAnalysis(){
   const steps=['Анализируем показатели…','Выявляем паттерны…','Формируем рекомендации…','Готовим отчёт…'];
   let si=0;const iv=setInterval(()=>{document.getElementById('loading-step').textContent=steps[si++%steps.length];},1100);
   try{
-    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:form.prompt(inputData)}]})});
+    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:form.prompt(inputData)})});
     const d=await r.json();clearInterval(iv);
+    console.log('API response status:', r.status);
+    console.log('API response data:', JSON.stringify(d));
+    if(d.error){
+      rawText='Ошибка API: '+d.error.message;
+      clearInterval(iv);
+      renderResult(rawText,[]);
+      return;
+    }
     rawText=d.content?.map(c=>c.text||'').join('')||'Не удалось получить анализ.';
     incrementUsage();
     updateUsageUI();
     renderResult(rawText,form.metrics?form.metrics(inputData):[]);
-  }catch(e){clearInterval(iv);rawText='Ошибка при получении анализа.';renderResult(rawText,[]);}
+  }catch(e){clearInterval(iv);rawText='Ошибка: '+e.message;console.error('Fetch error:',e);renderResult(rawText,[]);}
 }
 
 function renderResult(text,metrics){
