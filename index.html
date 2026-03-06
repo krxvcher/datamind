@@ -77,7 +77,7 @@ h1 em{font-style:normal;background:linear-gradient(120deg,var(--a1),var(--a2));-
 /* NICHES */
 .sw{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:0 20px;}
 .sec-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t1);margin-bottom:14px;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;}.sec-tag::before,.sec-tag::after{content:"";flex:1;max-width:60px;height:1px;background:var(--b3);}
-.niches{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:36px;}
+.niches{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:36px;}
 .nc{padding:16px 12px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s1);cursor:pointer;transition:all 0.18s;text-align:center;}
 .nc:hover{border-color:var(--b3);background:var(--s2);transform:translateY(-2px);}
 .nc.active{border-color:var(--a1);background:var(--ag1);box-shadow:0 0 0 1px rgba(108,143,255,0.2);}
@@ -302,6 +302,7 @@ textarea{resize:vertical;min-height:68px;line-height:1.5;}
       <div class="nc" onclick="selNiche('cafe')" id="niche-cafe"><span class="nc-icon">☕</span><div class="nc-name">Кафе / Ресторан</div></div>
       <div class="nc" onclick="selNiche('freelance')" id="niche-freelance"><span class="nc-icon">💼</span><div class="nc-name">Услуги / Фриланс</div></div>
       <div class="nc" onclick="selNiche('retail')" id="niche-retail"><span class="nc-icon">🏪</span><div class="nc-name">Розничный магазин</div></div>
+      <div class="nc" onclick="selNiche('content')" id="niche-content"><span class="nc-icon">🎬</span><div class="nc-name">Контент / Вирал</div></div>
     </div>
     <div class="atypes" id="atypes"></div>
   </div>
@@ -452,7 +453,8 @@ const NICHES={
   ecom:{label:'Интернет-магазин',types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'}]},
   cafe:{label:'Кафе / Ресторан',types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'}]},
   freelance:{label:'Услуги / Фриланс',types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'}]},
-  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}]}
+  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}]},
+  content:{label:'Контент / Вирал',types:[{id:'tiktok',label:'🎵 TikTok'},{id:'instagram',label:'📸 Instagram'},{id:'youtube',label:'▶️ YouTube'},{id:'strategy',label:'📱 Стратегия'}]}
 };
 const F={};
 
@@ -653,33 +655,98 @@ function doExcel(){
 }
 
 // ── PDF ───────────────────────────────────────────────────────────────────────
-function doPDF(){
+async function doPDF(){
   if(!rawText)return;
+  const btn=document.querySelector('.ab.pdf');
+  if(btn){btn.textContent='⏳ Загрузка...';btn.disabled=true;}
+
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),mg=18,cw=pw-mg*2;
   let y=0;
+
+  // Load NotoSans for cyrillic support
+  let useNoto=false;
+  try{
+    const resp=await fetch('/fonts/NotoSans-Regular.ttf');
+    if(resp.ok){
+      const buf=await resp.arrayBuffer();
+      const bytes=new Uint8Array(buf);
+      let bin='';for(let i=0;i<bytes.length;i+=1024)bin+=String.fromCharCode(...bytes.subarray(i,Math.min(i+1024,bytes.length)));
+      const b64=btoa(bin);
+      doc.addFileToVFS('NotoSans-Regular.ttf',b64);
+      doc.addFont('NotoSans-Regular.ttf','NotoSans','normal');
+      doc.addFileToVFS('NotoSans-Bold.ttf',b64);
+      doc.addFont('NotoSans-Bold.ttf','NotoSans','bold');
+      useNoto=true;
+    }
+  }catch(e){console.warn('NotoSans not loaded, using helvetica:',e);}
+  const F=useNoto?'NotoSans':'helvetica';
+
   const newPage=()=>{doc.addPage();y=22;foot();};
   const chk=(n=10)=>{if(y+n>ph-16)newPage();};
-  function tr(s){if(!s)return'';const m={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya','А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'Yo','Ж':'Zh','З':'Z','И':'I','Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'Kh','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Sch','Ъ':'','Ы':'Y','Ь':'','Э':'E','Ю':'Yu','Я':'Ya'};return s.split('').map(c=>m[c]!==undefined?m[c]:c).join('');}
-  const foot=()=>{const pg=doc.internal.getCurrentPageInfo().pageNumber;doc.setFillColor(20,20,28);doc.rect(0,ph-9,pw,9,'F');doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(100,100,140);doc.text('DataMind AI',mg,ph-3.5);doc.text('Page '+pg,pw-mg,ph-3.5,{align:'right'});};
+  const foot=()=>{
+    const pg=doc.internal.getCurrentPageInfo().pageNumber;
+    doc.setFillColor(20,20,28);doc.rect(0,ph-9,pw,9,'F');
+    doc.setFontSize(7);doc.setFont(F,'normal');doc.setTextColor(100,100,140);
+    doc.text('DataMind AI',mg,ph-3.5);doc.text('Page '+pg,pw-mg,ph-3.5,{align:'right'});
+  };
+
+  // Header
   doc.setFillColor(20,20,28);doc.rect(0,0,pw,14,'F');
   doc.setFillColor(108,143,255);doc.rect(0,12.5,pw,1.5,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('DataMind AI',mg,9);
-  doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(160,180,255);doc.text('Report · '+new Date().toLocaleDateString()+' · '+cCode,pw-mg,9,{align:'right'});
+  doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont(F,'bold');
+  doc.text('DataMind AI',mg,9);
+  doc.setFontSize(7.5);doc.setFont(F,'normal');doc.setTextColor(160,180,255);
+  doc.text('Отчёт · '+new Date().toLocaleDateString()+' · '+cCode,pw-mg,9,{align:'right'});
   y=24;foot();
-  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(20,20,40);doc.text('DataMind Report',mg,y);y+=7;
-  doc.setFontSize(9.5);doc.setFont('helvetica','normal');doc.setTextColor(100,100,150);doc.text(tr(nicheLabel)+' / '+tr(typeLabel),mg,y);y+=8;
+
+  // Title
+  doc.setFontSize(18);doc.setFont(F,'bold');doc.setTextColor(20,20,40);
+  doc.text('DataMind — Отчёт',mg,y);y+=7;
+  doc.setFontSize(9.5);doc.setFont(F,'normal');doc.setTextColor(100,100,150);
+  doc.text(nicheLabel+' / '+typeLabel,mg,y);y+=8;
   doc.setDrawColor(108,143,255);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=7;
-  const ents=Object.entries(inputData).filter(([,val])=>val&&val!='0');
-  if(ents.length){doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);doc.text('INPUT DATA',mg,y);y+=5;
-    ents.forEach(([k,val],i)=>{chk(7);doc.setFillColor(i%2===0?246:252,i%2===0?246:252,i%2===0?252:255);doc.rect(mg,y-3.5,cw,7,'F');doc.setFontSize(7.5);doc.setFont('helvetica','bold');doc.setTextColor(90,90,130);doc.text(tr(String(k)),mg+2,y);doc.setFont('helvetica','normal');doc.setTextColor(40,40,70);doc.text(tr(String(val)).substring(0,85),mg+55,y);y+=7;});y+=5;}
-  chk(14);doc.setDrawColor(200,210,240);doc.setLineWidth(0.2);doc.line(mg,y,pw-mg,y);y+=7;
-  doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);doc.text('AI ANALYSIS',mg,y);y+=7;
-  parseSec(rawText).forEach((sec,idx)=>{chk(13);doc.setFillColor(236,240,255);doc.rect(mg,y-4.5,cw,8,'F');doc.setFillColor(108,143,255);doc.rect(mg,y-4.5,2.5,8,'F');doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(30,30,70);doc.text(tr(sec.title),mg+5,y);y+=7;doc.setFontSize(8.5);doc.setFont('helvetica','normal');doc.setTextColor(30,30,55);doc.splitTextToSize(tr(sec.body),cw).forEach(ln=>{chk(5.5);doc.text(ln,mg+2,y);y+=5;});y+=4;});
-  const tot=doc.internal.getNumberOfPages();for(let i=1;i<=tot;i++){doc.setPage(i);foot();}
+
+  // Input data
+  const ents=Object.entries(inputData).filter(([,val])=>val&&val!='0'&&val!='не указано');
+  if(ents.length){
+    doc.setFontSize(8.5);doc.setFont(F,'bold');doc.setTextColor(60,60,100);
+    doc.text('ВВЕДЁННЫЕ ДАННЫЕ',mg,y);y+=5;
+    ents.forEach(([k,val],i)=>{
+      chk(7);
+      doc.setFillColor(i%2===0?246:252,i%2===0?246:252,i%2===0?252:255);
+      doc.rect(mg,y-3.5,cw,7,'F');
+      doc.setFontSize(7.5);doc.setFont(F,'bold');doc.setTextColor(90,90,130);
+      doc.text(String(k).substring(0,30),mg+2,y);
+      doc.setFont(F,'normal');doc.setTextColor(40,40,70);
+      doc.text(String(val).substring(0,85),mg+55,y);
+      y+=7;
+    });y+=5;
+  }
+
+  // AI Analysis
+  chk(14);
+  doc.setDrawColor(200,210,240);doc.setLineWidth(0.2);doc.line(mg,y,pw-mg,y);y+=7;
+  doc.setFontSize(8.5);doc.setFont(F,'bold');doc.setTextColor(60,60,100);
+  doc.text('AI АНАЛИЗ И РЕКОМЕНДАЦИИ',mg,y);y+=7;
+  parseSec(rawText).forEach((sec)=>{
+    chk(13);
+    doc.setFillColor(236,240,255);doc.rect(mg,y-4.5,cw,8,'F');
+    doc.setFillColor(108,143,255);doc.rect(mg,y-4.5,2.5,8,'F');
+    doc.setFontSize(8.5);doc.setFont(F,'bold');doc.setTextColor(30,30,70);
+    doc.text(sec.title,mg+5,y);y+=7;
+    doc.setFontSize(8.5);doc.setFont(F,'normal');doc.setTextColor(30,30,55);
+    doc.splitTextToSize(sec.body,cw).forEach(ln=>{chk(5.5);doc.text(ln,mg+2,y);y+=5;});
+    y+=4;
+  });
+
+  const tot=doc.internal.getNumberOfPages();
+  for(let i=1;i<=tot;i++){doc.setPage(i);foot();}
   doc.save('datamind-'+new Date().toISOString().split('T')[0]+'.pdf');
+  if(btn){btn.textContent='📄 PDF';btn.disabled=false;}
 }
+
 
 function parseSec(text){
   text=text.replace(/^#{1,4}\s*/gm,'');
@@ -688,6 +755,170 @@ function parseSec(text){
   if(!out.length)out.push({title:'Analysis',body:text.replace(/\n+/g,' ')});
   return out;
 }
+
+// ── CONTENT FORMS ─────────────────────────────────────────────────────────────
+
+F.content_tiktok={
+  title:'Вирусный TikTok-контент',subtitle:'Создадим идеи роликов под твою аудиторию и нишу',
+  prompt:d=>`Ты эксперт по вирусному контенту в TikTok с опытом роста аккаунтов до миллиона подписчиков. Создай конкретный контент-план.
+
+Ниша: ${d.niche}
+О себе / бренде: ${d.about}
+Целевая аудитория: ${d.audience}
+Текущих подписчиков: ${d.followers}
+Среднее кол-во просмотров: ${d.views}
+Лучший ролик (тема/просмотры): ${d.best}
+Стиль подачи: ${d.style}
+Цель: ${d.goal}
+Частота публикаций: ${d.frequency}
+Конкуренты / вдохновение: ${d.inspo}
+Уникальное преимущество: ${d.usp}
+
+Используй **ЗАГОЛОВОК** для каждого раздела:
+**АНАЛИЗ АККАУНТА** — текущая ситуация, потенциал роста, ошибки.
+**ТОП-5 ВИРУСНЫХ ИДЕЙ** — конкретные концепции роликов с хуком, структурой и почему зайдёт.
+**ХУКИ ДЛЯ ПЕРВЫХ 3 СЕКУНД** — 7 готовых фраз-хуков для твоей ниши.
+**КОНТЕНТ-ПЛАН НА 2 НЕДЕЛИ** — 14 конкретных тем с форматом и CTA.
+**АЛГОРИТМ РОСТА** — что делать каждый день для набора подписчиков.
+**ТРЕНДЫ СЕЙЧАС** — какие форматы и звуки работают в твоей нише прямо сейчас.`,
+  fields:()=>`<div class="fg">
+    <div class="fl full"><label>Ниша / тематика аккаунта</label><input type="text" id="f_niche" placeholder="Финансы, фитнес, кулинария, юмор, бизнес..."/></div>
+    <div class="fl full"><label>О себе / бренде</label><input type="text" id="f_about" placeholder="Коуч по продажам, владелец кофейни, мама двоих детей..."/></div>
+    <div class="fl full"><label>Целевая аудитория</label><input type="text" id="f_audience" placeholder="Мужчины 25-35, предприниматели, интересуются инвестициями..."/></div>
+    <div class="fl"><label>Подписчиков сейчас</label><input type="number" id="f_followers" placeholder="1200"/></div>
+    <div class="fl"><label>Среднее просмотров на ролик</label><input type="number" id="f_views" placeholder="800"/></div>
+    <div class="fl full"><label>Твой лучший ролик (тема и просмотры)</label><input type="text" id="f_best" placeholder="Как я заработал первые 1000\$ — 45 000 просмотров"/></div>
+    <div class="fl"><label>Стиль подачи</label><select id="f_style"><option>Обучение / полезность</option><option>Развлечение / юмор</option><option>Личная история</option><option>Провокация / споры</option><option>Трансформация / до-после</option><option>Закулисье / behind the scenes</option></select></div>
+    <div class="fl"><label>Частота публикаций</label><select id="f_frequency"><option>1 раз в неделю</option><option>3 раза в неделю</option><option>Ежедневно</option><option>2 раза в день</option></select></div>
+    <div class="fl full"><label>Главная цель</label><select id="f_goal"><option value="набрать подписчиков">Набрать подписчиков</option><option value="продавать продукт или услугу">Продавать продукт / услугу</option><option value="стать медийным экспертом">Стать медийным экспертом</option><option value="монетизировать через рекламу">Монетизация через рекламу</option></select></div>
+    <div class="fl full"><label>Вдохновение / конкуренты (ники)</label><input type="text" id="f_inspo" placeholder="@alexhormozi, @garyvee, похожие аккаунты..."/></div>
+    <div class="fl full"><label>Твоё уникальное преимущество</label><textarea id="f_usp" placeholder="Что у тебя есть, чего нет у других? Опыт, история, метод..."></textarea></div>
+  </div><div class="div"></div>`,
+  getData:()=>({niche:v('f_niche'),about:v('f_about'),audience:v('f_audience'),followers:v('f_followers','0'),views:v('f_views','0'),best:v('f_best'),style:v('f_style'),frequency:v('f_frequency'),goal:v('f_goal'),inspo:v('f_inspo'),usp:v('f_usp')}),
+  metrics:d=>{const er=d.followers>0?Math.round(parseInt(d.views||0)/parseInt(d.followers)*100):0;return[{val:parseInt(d.followers||0).toLocaleString(),lbl:'Подписчиков',cls:'neutral'},{val:parseInt(d.views||0).toLocaleString(),lbl:'Avg просмотров',cls:'up'},{val:er+'%',lbl:'Охват',cls:er>10?'up':er>3?'neutral':'down'}];}
+};
+
+F.content_instagram={
+  title:'Стратегия роста в Instagram',subtitle:'Reels, Stories, посты — полный план под твою нишу',
+  prompt:d=>`Ты топ-эксперт по Instagram-маркетингу. Разработай конкретную стратегию.
+
+Ниша: ${d.niche}
+О себе: ${d.about}
+Формат аккаунта: ${d.format}
+Подписчиков: ${d.followers}, Охват поста: ${d.reach}%, ER: ${d.er}%
+Что уже пробовал: ${d.tried}
+Целевая аудитория: ${d.audience}
+Монетизация: ${d.monetize}
+Сколько времени в день: ${d.time}
+Цель за 3 месяца: ${d.goal}
+Конкуренты: ${d.competitors}
+
+Используй **ЗАГОЛОВОК**:
+**АУДИТ АККАУНТА** — что работает, что тормозит рост, главные ошибки.
+**СТРАТЕГИЯ КОНТЕНТА** — соотношение Reels/Stories/посты, темы, форматы.
+**ТОП-7 ИДЕЙ ДЛЯ REELS** — конкретные концепции с хуком, структурой, музыкой.
+**КОНТЕНТ-ПЛАН НА МЕСЯЦ** — по неделям: темы, форматы, частота.
+**РОСТ АУДИТОРИИ** — методы набора живых подписчиков без накрутки.
+**МОНЕТИЗАЦИЯ** — как и когда начать зарабатывать на аккаунте.`,
+  fields:()=>`<div class="fg">
+    <div class="fl full"><label>Ниша / тематика</label><input type="text" id="f_niche" placeholder="Лайфстайл, бизнес, красота, путешествия..."/></div>
+    <div class="fl full"><label>О себе / проекте</label><textarea id="f_about" placeholder="Кто ты, чем занимаешься, почему ведёшь Instagram..."></textarea></div>
+    <div class="fl"><label>Формат аккаунта</label><select id="f_format"><option>Личный бренд</option><option>Бизнес / магазин</option><option>Медиа / блог</option><option>Экспертный аккаунт</option></select></div>
+    <div class="fl"><label>Подписчиков</label><input type="number" id="f_followers" placeholder="3500"/></div>
+    <div class="fl"><label>Охват одного поста (%)</label><input type="number" id="f_reach" placeholder="12" step="0.1"/></div>
+    <div class="fl"><label>ER (вовлечённость, %)</label><input type="number" id="f_er" placeholder="3.5" step="0.1"/></div>
+    <div class="fl full"><label>Что уже пробовал для роста</label><input type="text" id="f_tried" placeholder="Гивэвеи, реклама у блогеров, хэштеги, Reels каждый день..."/></div>
+    <div class="fl full"><label>Целевая аудитория</label><input type="text" id="f_audience" placeholder="Женщины 28-40, интересуются саморазвитием и карьерой..."/></div>
+    <div class="fl"><label>Способ монетизации</label><select id="f_monetize"><option value="продажа своих услуг">Продажа услуг</option><option value="продажа продуктов">Продажа продуктов</option><option value="реклама и спонсорство">Реклама / спонсорство</option><option value="партнёрские программы">Партнёрки</option><option value="ещё не монетизирую">Пока не монетизирую</option></select></div>
+    <div class="fl"><label>Времени в день на Instagram</label><select id="f_time"><option>30 минут</option><option>1 час</option><option>2-3 часа</option><option>Полный рабочий день</option></select></div>
+    <div class="fl full"><label>Цель за 3 месяца</label><input type="text" id="f_goal" placeholder="Дойти до 10 000 подписчиков, первые продажи через Instagram..."/></div>
+    <div class="fl full"><label>Конкуренты / ориентиры</label><input type="text" id="f_competitors" placeholder="@ники аккаунтов которые тебе нравятся или похожи на тебя"/></div>
+  </div><div class="div"></div>`,
+  getData:()=>({niche:v('f_niche'),about:v('f_about'),format:v('f_format'),followers:v('f_followers','0'),reach:v('f_reach','0'),er:v('f_er','0'),tried:v('f_tried'),audience:v('f_audience'),monetize:v('f_monetize'),time:v('f_time'),goal:v('f_goal'),competitors:v('f_competitors')}),
+  metrics:d=>[{val:parseInt(d.followers||0).toLocaleString(),lbl:'Подписчиков',cls:'neutral'},{val:(d.er||'0')+'%',lbl:'ER',cls:parseFloat(d.er)>5?'up':parseFloat(d.er)>2?'neutral':'down'},{val:(d.reach||'0')+'%',lbl:'Охват',cls:'neutral'}]
+};
+
+F.content_youtube={
+  title:'Стратегия роста YouTube-канала',subtitle:'SEO, идеи видео, удержание аудитории и монетизация',
+  prompt:d=>`Ты эксперт по развитию YouTube-каналов с опытом вывода каналов в топ. Разработай стратегию.
+
+Тематика канала: ${d.niche}
+О канале / авторе: ${d.about}
+Подписчиков: ${d.subs}, Среднее просмотров: ${d.views}
+Средний CTR: ${d.ctr}%, Удержание аудитории: ${d.retention}%
+Длина видео: ${d.length}
+Частота выхода: ${d.frequency}
+Лучшее видео: ${d.best}
+Цель: ${d.goal}
+Монетизация сейчас: ${d.monetize}
+Целевая аудитория: ${d.audience}
+
+Используй **ЗАГОЛОВОК**:
+**АУДИТ КАНАЛА** — сильные стороны, слабые места, главные проблемы роста.
+**SEO-СТРАТЕГИЯ** — как оптимизировать заголовки, описания, теги для выхода в рекомендации.
+**ТОП-8 ИДЕЙ ДЛЯ ВИДЕО** — конкретные темы с объяснением почему наберут просмотры.
+**КАК УВЕЛИЧИТЬ CTR И УДЕРЖАНИЕ** — конкретные техники для превью и структуры видео.
+**ПЛАН МОНЕТИЗАЦИИ** — пути заработка на канале помимо AdSense.
+**КОНТЕНТ-ПЛАН НА МЕСЯЦ** — расписание тем по неделям.`,
+  fields:()=>`<div class="fg">
+    <div class="fl full"><label>Тематика канала</label><input type="text" id="f_niche" placeholder="Технологии, образование, влог, игры, бизнес..."/></div>
+    <div class="fl full"><label>О канале и авторе</label><textarea id="f_about" placeholder="Кто ведёт, о чём канал, какой опыт, что уникального..."></textarea></div>
+    <div class="fl"><label>Подписчиков</label><input type="number" id="f_subs" placeholder="2400"/></div>
+    <div class="fl"><label>Среднее просмотров на видео</label><input type="number" id="f_views" placeholder="1200"/></div>
+    <div class="fl"><label>CTR (%) — средний по каналу</label><input type="number" id="f_ctr" placeholder="4.2" step="0.1"/></div>
+    <div class="fl"><label>Удержание аудитории (%)</label><input type="number" id="f_retention" placeholder="38" step="0.1"/></div>
+    <div class="fl"><label>Средняя длина видео</label><select id="f_length"><option>До 3 минут (Shorts)</option><option>3–8 минут</option><option>8–15 минут</option><option>15–30 минут</option><option>Больше 30 минут</option></select></div>
+    <div class="fl"><label>Частота выхода видео</label><select id="f_frequency"><option>Раз в месяц</option><option>1-2 раза в неделю</option><option>3-4 раза в неделю</option><option>Ежедневно</option></select></div>
+    <div class="fl full"><label>Лучшее видео (тема + просмотры)</label><input type="text" id="f_best" placeholder="Как я бросил работу и начал бизнес — 120 000 просмотров"/></div>
+    <div class="fl full"><label>Целевая аудитория</label><input type="text" id="f_audience" placeholder="Студенты и молодые специалисты 18-28, интересуются карьерой..."/></div>
+    <div class="fl"><label>Монетизация сейчас</label><select id="f_monetize"><option value="ещё не монетизирую">Ещё не монетизирую</option><option value="AdSense">AdSense</option><option value="AdSense + спонсоры">AdSense + спонсоры</option><option value="продаю свои продукты">Продаю свои продукты</option></select></div>
+    <div class="fl full"><label>Цель за 6 месяцев</label><input type="text" id="f_goal" placeholder="Выйти на 10 000 подписчиков, получить монетизацию, продавать курс..."/></div>
+  </div><div class="div"></div>`,
+  getData:()=>({niche:v('f_niche'),about:v('f_about'),subs:v('f_subs','0'),views:v('f_views','0'),ctr:v('f_ctr','0'),retention:v('f_retention','0'),length:v('f_length'),frequency:v('f_frequency'),best:v('f_best'),audience:v('f_audience'),monetize:v('f_monetize'),goal:v('f_goal')}),
+  metrics:d=>[{val:parseInt(d.subs||0).toLocaleString(),lbl:'Подписчиков',cls:'neutral'},{val:(d.ctr||'0')+'%',lbl:'CTR',cls:parseFloat(d.ctr)>5?'up':parseFloat(d.ctr)>3?'neutral':'down'},{val:(d.retention||'0')+'%',lbl:'Удержание',cls:parseFloat(d.retention)>50?'up':parseFloat(d.retention)>35?'neutral':'down'}]
+};
+
+F.content_strategy={
+  title:'Кросс-платформенная контент-стратегия',subtitle:'Единая система публикаций на всех платформах',
+  prompt:d=>`Ты стратег по цифровому маркетингу и контенту. Разработай комплексную стратегию.
+
+Бизнес / проект: ${d.project}
+Продукт / услуга: ${d.product}
+Целевая аудитория: ${d.audience}
+Бюджет на контент в месяц: ${d.budget}
+Команда: ${d.team}
+Активные платформы: ${d.platforms}
+Слабые платформы / которые хочешь запустить: ${d.new_platforms}
+Главная проблема сейчас: ${d.problem}
+Конкуренты: ${d.competitors}
+Цель за 3 месяца: ${d.goal}
+Уникальное позиционирование: ${d.positioning}
+
+Используй **ЗАГОЛОВОК**:
+**АУДИТ ТЕКУЩЕГО КОНТЕНТА** — что работает, что нет, ключевые ошибки.
+**КОНТЕНТ-СИСТЕМА** — единая экосистема: один пилларный контент → дистрибуция на все платформы.
+**ПЛАН ПО ПЛАТФОРМАМ** — стратегия отдельно для каждой активной платформы.
+**КОНТЕНТ-ПЛАН НА МЕСЯЦ** — конкретные темы, форматы, даты публикаций.
+**KPI И МЕТРИКИ** — как измерять эффективность на каждой платформе.
+**КОМАНДА И ПРОЦЕССЫ** — как организовать производство контента с твоими ресурсами.`,
+  fields:()=>`<div class="fg">
+    <div class="fl full"><label>Бизнес / проект</label><input type="text" id="f_project" placeholder="Онлайн-школа английского, ресторан, личный бренд коуча..."/></div>
+    <div class="fl full"><label>Продукт / услуга</label><input type="text" id="f_product" placeholder="Что продаёшь или продвигаешь через контент..."/></div>
+    <div class="fl full"><label>Целевая аудитория</label><textarea id="f_audience" placeholder="Кто твой клиент: возраст, интересы, боли, как принимает решения..."></textarea></div>
+    <div class="fl"><label>Бюджет на контент (в месяц)</label><input type="text" id="f_budget" placeholder="500\$, нет бюджета, 200\$/мес..."/></div>
+    <div class="fl"><label>Команда (кто занимается контентом)</label><select id="f_team"><option value="только я">Только я</option><option value="я + помощник">Я + помощник</option><option value="маркетолог в штате">Маркетолог в штате</option><option value="агентство">Агентство</option></select></div>
+    <div class="fl full"><label>Активные платформы сейчас</label><input type="text" id="f_platforms" placeholder="Instagram 5k, TikTok 1k, YouTube 200 подп..."/></div>
+    <div class="fl full"><label>Платформы которые хочешь запустить / усилить</label><input type="text" id="f_new_platforms" placeholder="Telegram-канал, LinkedIn, Shorts..."/></div>
+    <div class="fl full"><label>Главная проблема с контентом сейчас</label><textarea id="f_problem" placeholder="Нет времени, не знаю о чём писать, контент есть но нет продаж..."></textarea></div>
+    <div class="fl full"><label>Уникальное позиционирование</label><input type="text" id="f_positioning" placeholder="Почему клиент должен выбрать тебя, а не конкурента..."/></div>
+    <div class="fl full"><label>Конкуренты</label><input type="text" id="f_competitors" placeholder="Кто делает похожий контент или работает с той же аудиторией..."/></div>
+    <div class="fl full"><label>Цель за 3 месяца</label><input type="text" id="f_goal" placeholder="100 лидов в месяц, 20 000 подписчиков, первые продажи..."/></div>
+  </div><div class="div"></div>`,
+  getData:()=>({project:v('f_project'),product:v('f_product'),audience:v('f_audience'),budget:v('f_budget'),team:v('f_team'),platforms:v('f_platforms'),new_platforms:v('f_new_platforms'),problem:v('f_problem'),positioning:v('f_positioning'),competitors:v('f_competitors'),goal:v('f_goal')}),
+  metrics:d=>[{val:'AI',lbl:'Стратегия',cls:'neutral'},{val:'📱',lbl:'Кросс-платформа',cls:'up'},{val:'↑',lbl:'Рост',cls:'up'}]
+};
+
+>
 </script>
 </body>
-</html>
+</html
