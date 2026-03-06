@@ -734,7 +734,7 @@ async function runAnalysis(){
   const steps=['Анализируем показатели…','Выявляем паттерны…','Формируем рекомендации…','Готовим отчёт…'];
   let si=0;const iv=setInterval(()=>{document.getElementById('loading-step').textContent=steps[si++%steps.length];},1100);
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:form.prompt(inputData)}]})});
+    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:form.prompt(inputData)}]})});
     const d=await r.json();clearInterval(iv);
     rawText=d.content?.map(c=>c.text||'').join('')||'Не удалось получить анализ.';
     incrementUsage();
