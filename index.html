@@ -4,208 +4,599 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataMind — AI-аналитика для бизнеса</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://openfpcdn.io/fingerprintjs/v4/iife.min.js"></script>
 <style>
+/* ── TOKENS ─────────────────────────────────────────────────────────────────── */
 :root {
-  --bg:#07080f;--surface:#0f1018;--surface2:#171820;--surface3:#1e1f2c;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --accent:#5b8af5;--accent2:#00c9a7;--accent3:#ff6b82;
-  --accent-glow:rgba(91,138,245,0.15);
-  --text:#eeeef8;--muted:#7878a0;--muted2:#4a4a68;
+  --bg: #080912;
+  --bg2: #0d0f1c;
+  --surface: #0f1120;
+  --surface2: #161829;
+  --surface3: #1c1f33;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --border3: rgba(255,255,255,0.16);
+  --blue: #4f8ef7;
+  --blue2: #3a7af0;
+  --teal: #00e5b0;
+  --teal2: #00c99a;
+  --red: #ff5f7e;
+  --yellow: #f5c842;
+  --text: #f2f2f8;
+  --text2: #a8a8c8;
+  --muted: #5a5a80;
+  --muted2: #35354f;
+  --num-font: 'JetBrains Mono', monospace;
+  --display-font: 'Cabinet Grotesk', sans-serif;
+  --body-font: 'Instrument Sans', sans-serif;
+  --glow-blue: rgba(79,142,247,0.12);
+  --glow-teal: rgba(0,229,176,0.1);
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 60% at 15% 5%,rgba(91,138,245,0.08) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(0,201,167,0.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
 
-header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;border-bottom:1px solid var(--border);}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;}
-.logo span{color:var(--accent);}
-.logo sub{font-size:10px;font-weight:400;color:var(--muted);vertical-align:super;margin-left:3px;font-family:'DM Sans',sans-serif;}
-.pill{font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;background:rgba(91,138,245,0.1);border:1px solid rgba(91,138,245,0.25);color:#8aabff;letter-spacing:0.5px;text-transform:uppercase;}
+/* ── RESET ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--body-font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-.hero{position:relative;z-index:1;text-align:center;padding:64px 24px 40px;}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;color:var(--accent2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;}
-.hero-tag::before,.hero-tag::after{content:'';width:20px;height:1px;background:var(--accent2);opacity:0.4;}
-h1{font-family:'Syne',sans-serif;font-size:clamp(34px,5vw,60px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:18px;}
-h1 em{font-style:normal;background:linear-gradient(130deg,var(--accent) 20%,var(--accent2) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.hero p{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 48px;line-height:1.65;font-weight:300;}
+/* ── AMBIENT BACKGROUND ──────────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 100% 60% at 10% 0%, rgba(79,142,247,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(0,229,176,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(79,142,247,0.03) 0%, transparent 70%);
+}
 
-.section-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:14px;text-align:center;}
-.niches{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px;}
-.niche-btn{display:flex;align-items:center;gap:10px;padding:13px 20px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all 0.2s;}
-.niche-btn:hover{border-color:var(--accent);color:var(--text);background:var(--surface2);transform:translateY(-1px);}
-.niche-btn.active{border-color:var(--accent);background:var(--accent-glow);color:var(--text);box-shadow:0 0 30px var(--accent-glow);}
-.niche-btn .icon{font-size:18px;}
+/* Noise texture overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
 
-.analysis-types{display:none;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;animation:fadeUp 0.3s ease;}
-.analysis-types.visible{display:flex;}
-.type-btn{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all 0.2s;}
-.type-btn:hover{border-color:var(--accent2);color:var(--accent2);}
-.type-btn.active{border-color:var(--accent2);background:rgba(0,201,167,0.1);color:var(--accent2);}
+/* ── SCROLLBAR ────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 4px; }
 
-.form-card{display:none;max-width:660px;margin:0 auto 40px;background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;position:relative;z-index:1;box-shadow:0 0 60px rgba(91,138,245,0.08);animation:fadeUp 0.35s ease;}
-.form-card.visible{display:block;}
-.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--accent),var(--accent2));}
-.form-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;margin-bottom:5px;}
-.form-subtitle{font-size:13px;color:var(--muted);margin-bottom:26px;font-weight:300;}
+/* ── HEADER ──────────────────────────────────────────────────────────────────── */
+header {
+  position: relative; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 52px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  background: rgba(8,9,18,0.6);
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--display-font); font-weight: 900; font-size: 18px; letter-spacing: -0.5px;
+}
+.logo-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: #fff;
+}
+.logo-text { color: var(--text); }
+.logo-text span { color: var(--blue); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.badge-free {
+  font-family: var(--num-font); font-size: 10px; font-weight: 500;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.2);
+  color: var(--blue); letter-spacing: 0.5px; text-transform: uppercase;
+}
+.usage-counter-header {
+  display: none; align-items: center; gap: 6px;
+  font-family: var(--num-font); font-size: 11px; color: var(--muted);
+}
+.usage-dots { display: flex; gap: 4px; }
+.usage-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted2); transition: background 0.3s, transform 0.2s;
+}
+.usage-dot.used { background: var(--teal); transform: scale(1.1); }
+.usage-dot.last-used { background: var(--red); }
 
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
-.form-grid.single{grid-template-columns:1fr;}
-.field{display:flex;flex-direction:column;gap:5px;}
-.field.full{grid-column:1/-1;}
-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
-input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;width:100%;}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);}
-input::placeholder,textarea::placeholder{color:var(--muted2);}
-select option{background:#1a1a2e;}
-textarea{resize:vertical;min-height:76px;}
+/* ── HERO ────────────────────────────────────────────────────────────────────── */
+.hero {
+  position: relative; z-index: 1;
+  text-align: center; padding: 80px 24px 56px;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--num-font); font-size: 11px; font-weight: 500;
+  color: var(--teal); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: ''; width: 18px; height: 1px; background: var(--teal); opacity: 0.4;
+}
+.hero h1 {
+  font-family: var(--display-font);
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 900; line-height: 1.02; letter-spacing: -3px;
+  margin-bottom: 20px; color: var(--text);
+}
+.hero h1 .grad {
+  background: linear-gradient(120deg, var(--blue) 0%, var(--teal) 60%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  font-size: 17px; color: var(--text2); max-width: 480px; margin: 0 auto 20px;
+  line-height: 1.65; font-weight: 400;
+}
+.hero-sub strong { -webkit-text-fill-color: initial; color: var(--teal); font-weight: 600; }
 
-.months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;}
-.month-field{display:flex;flex-direction:column;gap:4px;align-items:center;}
-.month-field label{font-size:9px;color:var(--muted2);letter-spacing:0;text-transform:none;}
-.month-field input{text-align:center;padding:8px 4px;font-size:12px;}
-.divider{height:1px;background:var(--border);margin:20px 0;}
+/* ── CURRENCY + REGION SELECTOR ─────────────────────────────────────────────── */
+.locale-bar {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 48px; flex-wrap: wrap;
+}
+.locale-label {
+  font-family: var(--num-font); font-size: 10px; font-weight: 500;
+  color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+}
+.locale-select {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 8px 12px 8px 10px;
+  color: var(--text); font-family: var(--body-font); font-size: 13px; font-weight: 500;
+  outline: none; cursor: pointer; transition: border-color 0.2s;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+}
+.locale-select:focus { border-color: var(--blue); }
+.locale-select option { background: #161829; }
 
-.submit-btn{width:100%;padding:15px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent) 0%,#7c5cbf 100%);color:white;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;}
-.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,138,245,0.35);}
+/* ── NICHE SELECTOR ──────────────────────────────────────────────────────────── */
+.section-eyebrow {
+  font-family: var(--num-font); font-size: 10px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 14px; text-align: center;
+}
+.niches {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; margin-bottom: 24px;
+}
+.niche-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-radius: 14px;
+  border: 1px solid var(--border2); background: var(--surface);
+  color: var(--text2); cursor: pointer;
+  font-family: var(--body-font); font-size: 14px; font-weight: 500;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.niche-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  opacity: 0; transition: opacity 0.2s;
+}
+.niche-btn:hover { border-color: var(--blue); color: var(--text); transform: translateY(-1px); }
+.niche-btn.active {
+  border-color: var(--blue); color: var(--text);
+  background: rgba(79,142,247,0.1);
+  box-shadow: 0 0 0 1px rgba(79,142,247,0.3), 0 8px 32px rgba(79,142,247,0.12);
+}
+.niche-btn .ico { font-size: 17px; position: relative; z-index: 1; }
+.niche-btn span:last-child { position: relative; z-index: 1; }
 
-.loading-overlay{display:none;max-width:660px;margin:0 auto 40px;text-align:center;padding:56px 24px;z-index:1;position:relative;}
-.loading-overlay.visible{display:block;}
-.spinner{width:44px;height:44px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
-.loading-text{font-size:14px;color:var(--muted);font-weight:300;}
-.loading-step{margin-top:8px;font-size:12px;color:var(--muted2);}
+/* ── ANALYSIS TYPES ──────────────────────────────────────────────────────────── */
+.analysis-types {
+  display: none; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin-bottom: 36px;
+  animation: fadeUp 0.25s ease;
+}
+.analysis-types.visible { display: flex; }
+.type-btn {
+  padding: 8px 16px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer;
+  font-family: var(--body-font); font-size: 13px; font-weight: 500;
+  transition: all 0.15s;
+}
+.type-btn:hover { border-color: var(--teal); color: var(--teal); }
+.type-btn.active {
+  border-color: var(--teal); background: rgba(0,229,176,0.08);
+  color: var(--teal);
+}
 
-.result-card{display:none;max-width:660px;margin:0 auto 60px;position:relative;z-index:1;animation:fadeUp 0.45s ease;}
-.result-card.visible{display:block;}
-.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
-.result-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
-.result-actions{display:flex;gap:8px;flex-wrap:wrap;}
+/* ── FORM CARD ────────────────────────────────────────────────────────────────── */
+.form-card {
+  display: none; max-width: 680px; margin: 0 auto 40px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 0 80px rgba(79,142,247,0.07);
+  animation: fadeUp 0.3s ease; position: relative; z-index: 1;
+}
+.form-card.visible { display: block; }
+.form-top-bar {
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+}
+.form-inner { padding: 36px; }
+.currency-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--num-font); font-size: 10px; color: var(--muted);
+  margin-bottom: 20px; letter-spacing: 0.5px;
+}
+.currency-hint .cur-badge {
+  background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 3px 8px;
+  font-weight: 600; color: var(--blue); font-size: 11px;
+}
+.form-title {
+  font-family: var(--display-font); font-size: 20px; font-weight: 800;
+  letter-spacing: -0.5px; margin-bottom: 4px;
+}
+.form-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 28px; font-weight: 400; }
 
-.action-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all 0.2s;white-space:nowrap;}
-.action-btn:hover{transform:translateY(-1px);}
-.action-btn.excel:hover{border-color:#1DB954;color:#1DB954;background:rgba(29,185,84,0.08);}
-.action-btn.pdf:hover{border-color:#ff6b82;color:#ff6b82;background:rgba(255,107,130,0.08);}
-.action-btn.copy:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow);}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+.form-grid.single { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+label {
+  font-family: var(--num-font); font-size: 10px; font-weight: 500;
+  color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase;
+}
+input, select, textarea {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  color: var(--text); font-family: var(--body-font); font-size: 14px;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(79,142,247,0.1);
+}
+input::placeholder, textarea::placeholder { color: var(--muted2); }
+select option { background: var(--surface2); }
+textarea { resize: vertical; min-height: 76px; }
 
-.result-body{background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(91,138,245,0.07);}
-.result-body::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));}
-.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
-.metric{padding:18px 20px;background:var(--surface2);text-align:center;}
-.metric-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:3px;}
-.metric-val.up{color:var(--accent2);}
-.metric-val.neutral{color:var(--accent);}
-.metric-val.down{color:var(--accent3);}
-.metric-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.result-content{padding:28px 32px;font-size:14px;line-height:1.9;color:#c8c8e0;}
-.result-content .section-block{margin-bottom:22px;}
-.result-content .section-block:last-child{margin-bottom:0;}
-.result-content .section-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 14px;background:rgba(91,138,245,0.08);border-radius:10px;border-left:3px solid var(--accent);}
-.result-content .section-header strong{color:var(--text);font-weight:700;font-family:'Syne',sans-serif;font-size:12px;letter-spacing:0.8px;text-transform:uppercase;margin:0;}
-.result-content .section-body{padding:0 4px;color:#c8c8e0;font-size:14px;line-height:1.85;}
-.result-content .section-body p{margin-bottom:8px;}
-.result-content .bullet-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;padding:8px 12px;background:rgba(255,255,255,0.03);border-radius:8px;}
-.result-content .bullet-item::before{content:'→';color:var(--accent2);font-weight:700;flex-shrink:0;margin-top:1px;}
-.result-content .highlight{color:var(--accent2);font-weight:600;}
+/* Number inputs: JetBrains Mono */
+input[type="number"] { font-family: var(--num-font); font-size: 14px; }
 
-.export-note{text-align:center;font-size:12px;color:var(--muted2);margin-top:10px;}
-.export-note span{color:var(--accent2);}
+.months-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 7px; }
+.month-field { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.month-field label { font-size: 9px; color: var(--muted2); letter-spacing: 0; text-transform: none; font-family: var(--body-font); }
+.month-field input { text-align: center; padding: 8px 4px; font-size: 12px; }
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
 
-.how-section{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:56px 24px;border-top:1px solid var(--border);}
-.how-section h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;letter-spacing:-1px;}
-.how-section .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:36px;font-weight:300;}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-.step{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 22px;}
-.step-num{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--border2);line-height:1;margin-bottom:10px;}
-.step h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:7px;}
-.step p{font-size:13px;color:var(--muted);line-height:1.6;font-weight:300;}
+.submit-btn {
+  width: 100%; padding: 15px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--blue) 0%, #6a5bf7 100%);
+  color: white; font-family: var(--display-font); font-size: 15px; font-weight: 800;
+  cursor: pointer; letter-spacing: 0.2px; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.submit-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0; transition: opacity 0.2s;
+}
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(79,142,247,0.35); }
+.submit-btn:hover::after { opacity: 1; }
+.submit-btn:active { transform: translateY(0); }
 
-/* USAGE COUNTER */
-.usage-bar{position:relative;z-index:1;max-width:660px;margin:0 auto 8px;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 4px;}
-.usage-dots{display:flex;gap:6px;}
-.usage-dot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:background 0.3s;}
-.usage-dot.used{background:var(--accent2);}
-.usage-dot.last{background:var(--accent3);}
-.usage-text{font-size:11px;color:var(--muted2);font-weight:500;}
-/* PAYWALL */
-.paywall-overlay{display:none;position:fixed;inset:0;background:rgba(7,8,15,0.92);backdrop-filter:blur(12px);z-index:100;align-items:center;justify-content:center;padding:24px;}
-.paywall-overlay.visible{display:flex;animation:fadeUp 0.3s ease;}
-.paywall-card{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:48px 40px;max-width:460px;width:100%;text-align:center;position:relative;box-shadow:0 0 80px rgba(91,138,245,0.15);}
-.paywall-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,var(--accent),var(--accent2));}
-.paywall-icon{font-size:48px;margin-bottom:16px;}
-.paywall-title{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:10px;}
-.paywall-sub{font-size:14px;color:var(--muted);line-height:1.6;font-weight:300;margin-bottom:28px;}
-.paywall-features{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;text-align:left;}
-.paywall-feature{display:flex;align-items:center;gap:10px;font-size:13px;color:#c0c0da;}
-.paywall-feature span{color:var(--accent2);font-weight:700;}
-.paywall-price{margin-bottom:24px;}
-.price-amount{font-family:"Syne",sans-serif;font-size:42px;font-weight:800;color:var(--text);}
-.price-period{font-size:14px;color:var(--muted);margin-left:4px;}
-.price-note{font-size:11px;color:var(--muted2);margin-top:4px;}
-.pay-btn{display:block;width:100%;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),#7c5cbf);color:white;font-family:"Syne",sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:12px;}
-.pay-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(91,138,245,0.4);}
-.pay-btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:13px;padding:12px;width:100%;border-radius:12px;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all 0.2s;display:block;margin-bottom:10px;}
-.pay-btn-outline:hover{border-color:var(--accent2);color:var(--accent2);}
-.pay-secure{font-size:11px;color:var(--muted2);margin-top:6px;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-@keyframes spin{to{transform:rotate(360deg);}}
+/* ── LOADING ─────────────────────────────────────────────────────────────────── */
+.loading-overlay {
+  display: none; max-width: 680px; margin: 0 auto 40px;
+  text-align: center; padding: 64px 24px; z-index: 1; position: relative;
+}
+.loading-overlay.visible { display: block; }
+.loader-ring {
+  width: 48px; height: 48px; margin: 0 auto 20px;
+  border: 1.5px solid var(--border2);
+  border-top-color: var(--blue); border-right-color: var(--teal);
+  border-radius: 50%; animation: spin 0.9s linear infinite;
+}
+.loading-text { font-family: var(--display-font); font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.loading-step { font-family: var(--num-font); font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+
+/* ── RESULT ──────────────────────────────────────────────────────────────────── */
+.result-card {
+  display: none; max-width: 680px; margin: 0 auto 64px;
+  position: relative; z-index: 1; animation: fadeUp 0.4s ease;
+}
+.result-card.visible { display: block; }
+.result-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.result-title {
+  font-family: var(--display-font); font-size: 17px; font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.result-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.action-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 15px; border-radius: 9px;
+  border: 1px solid var(--border2); background: var(--surface);
+  color: var(--text2); cursor: pointer;
+  font-family: var(--body-font); font-size: 12px; font-weight: 600;
+  transition: all 0.15s; white-space: nowrap;
+}
+.action-btn:hover { transform: translateY(-1px); }
+.action-btn.excel:hover { border-color: #1DB954; color: #1DB954; background: rgba(29,185,84,0.06); }
+.action-btn.pdf:hover { border-color: var(--red); color: var(--red); background: rgba(255,95,126,0.06); }
+.action-btn.copy:hover { border-color: var(--blue); color: var(--blue); background: var(--glow-blue); }
+
+.result-body {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 0 80px rgba(79,142,247,0.06);
+}
+.result-top-accent { height: 2px; background: linear-gradient(90deg, var(--teal), var(--blue)); }
+
+/* ── METRICS ROW ────────────────────────────────────────────────────────────── */
+.metrics-row {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--border); border-bottom: 1px solid var(--border);
+}
+.metric { padding: 20px 22px; background: var(--surface2); text-align: center; }
+.metric-val {
+  font-family: var(--num-font); font-size: 22px; font-weight: 500;
+  margin-bottom: 4px; letter-spacing: -0.5px;
+}
+.metric-val.up { color: var(--teal); }
+.metric-val.neutral { color: var(--blue); }
+.metric-val.down { color: var(--red); }
+.metric-label {
+  font-family: var(--num-font); font-size: 9px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* ── REPORT CONTENT ─────────────────────────────────────────────────────────── */
+.result-content { padding: 24px 28px; }
+
+.report-intro {
+  font-size: 14px; color: var(--text2); line-height: 1.8;
+  margin-bottom: 20px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-block { margin-bottom: 4px; }
+.section-block:last-child { margin-bottom: 0; }
+
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 10px;
+  background: rgba(79,142,247,0.06);
+  border: 1px solid rgba(79,142,247,0.12);
+  margin-bottom: 2px; cursor: default;
+}
+.section-icon { font-size: 14px; flex-shrink: 0; }
+.section-title-text {
+  font-family: var(--num-font); font-size: 11px; font-weight: 500;
+  color: var(--text); letter-spacing: 1px; text-transform: uppercase;
+}
+.section-body {
+  padding: 12px 16px 16px;
+  border-left: 1px solid var(--border);
+  margin-left: 8px;
+  margin-bottom: 12px;
+}
+.section-body p {
+  font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 8px;
+}
+.section-body p:last-child { margin-bottom: 0; }
+.bullet-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 12px; margin-bottom: 6px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); border-radius: 9px;
+  font-size: 13px; color: var(--text2); line-height: 1.6;
+  transition: background 0.15s;
+}
+.bullet-item:hover { background: rgba(255,255,255,0.04); }
+.bullet-arrow {
+  color: var(--teal); font-family: var(--num-font); font-size: 12px;
+  flex-shrink: 0; margin-top: 2px;
+}
+.bullet-key { color: var(--text); font-weight: 600; }
+
+.export-note {
+  text-align: center; font-family: var(--num-font); font-size: 10px;
+  color: var(--muted); margin-top: 10px; letter-spacing: 0.3px;
+}
+.export-note span { color: var(--teal); }
+
+/* ── PAYWALL ─────────────────────────────────────────────────────────────────── */
+.paywall-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(8,9,18,0.92); backdrop-filter: blur(16px);
+  z-index: 100; align-items: center; justify-content: center; padding: 24px;
+}
+.paywall-overlay.visible { display: flex; animation: fadeUp 0.3s ease; }
+.paywall-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 24px; padding: 48px 40px;
+  max-width: 440px; width: 100%; text-align: center; position: relative;
+  box-shadow: 0 0 100px rgba(79,142,247,0.15);
+}
+.paywall-top { height: 2px; background: linear-gradient(90deg, var(--blue), var(--teal)); border-radius: 24px 24px 0 0; position: absolute; top: 0; left: 0; right: 0; }
+.paywall-icon { font-size: 44px; margin-bottom: 16px; }
+.paywall-title { font-family: var(--display-font); font-size: 26px; font-weight: 900; letter-spacing: -1px; margin-bottom: 10px; }
+.paywall-sub { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 28px; }
+.paywall-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; text-align: left; }
+.paywall-feat {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text2);
+  padding: 8px 12px; background: var(--surface2); border-radius: 8px;
+}
+.paywall-feat-icon { color: var(--teal); font-size: 13px; flex-shrink: 0; }
+.price-block { margin-bottom: 24px; }
+.price-main { font-family: var(--num-font); font-size: 46px; font-weight: 500; color: var(--text); letter-spacing: -2px; }
+.price-period { font-size: 14px; color: var(--muted); }
+.price-note { font-family: var(--num-font); font-size: 10px; color: var(--muted2); margin-top: 4px; letter-spacing: 0.3px; }
+.pay-btn-primary {
+  display: block; width: 100%; padding: 15px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--blue), #6a5bf7);
+  color: white; font-family: var(--display-font); font-size: 15px; font-weight: 800;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; margin-bottom: 10px;
+}
+.pay-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(79,142,247,0.35); }
+.pay-btn-secondary {
+  display: block; width: 100%; padding: 13px; border-radius: 12px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text2); font-family: var(--body-font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; text-decoration: none; margin-bottom: 10px;
+}
+.pay-btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+.pay-secure { font-family: var(--num-font); font-size: 10px; color: var(--muted2); margin-top: 8px; letter-spacing: 0.3px; }
+
+/* ── HOW IT WORKS ────────────────────────────────────────────────────────────── */
+.how-section {
+  position: relative; z-index: 1;
+  max-width: 840px; margin: 0 auto;
+  padding: 64px 24px; border-top: 1px solid var(--border);
+}
+.how-section h2 {
+  font-family: var(--display-font); font-size: 32px; font-weight: 900;
+  text-align: center; margin-bottom: 8px; letter-spacing: -1.5px;
+}
+.how-sub { text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 40px; }
+.steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.step {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 24px; position: relative;
+  transition: border-color 0.2s;
+}
+.step:hover { border-color: var(--border3); }
+.step-num {
+  font-family: var(--num-font); font-size: 11px; font-weight: 500;
+  color: var(--blue); letter-spacing: 1px; margin-bottom: 16px;
+  display: inline-block; padding: 4px 8px; background: rgba(79,142,247,0.08);
+  border-radius: 6px;
+}
+.step h3 { font-family: var(--display-font); font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+.step p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ── ANIMATIONS ──────────────────────────────────────────────────────────────── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────────── */
 @media(max-width:640px){
-  header{padding:16px 20px;}
-  .form-card{padding:22px 18px;}
-  .form-grid{grid-template-columns:1fr;}
-  .months-grid{grid-template-columns:repeat(3,1fr);}
-  .steps{grid-template-columns:1fr;}
-  .metrics-row{grid-template-columns:1fr;}
+  header { padding: 16px 20px; }
+  .form-inner { padding: 24px 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .months-grid { grid-template-columns: repeat(3,1fr); }
+  .steps { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: 1fr; }
+  .paywall-card { padding: 36px 24px; }
+  .result-actions { flex-wrap: wrap; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Data<span>Mind</span><sub>AI</sub></div>
-  <div class="pill">Beta · Free</div>
+  <div class="logo">
+    <div class="logo-mark">D</div>
+    <div class="logo-text">Data<span>Mind</span></div>
+  </div>
+  <div class="header-right">
+    <div class="usage-counter-header" id="usage-counter-header">
+      <div class="usage-dots" id="usage-dots-header"></div>
+      <span id="usage-text-header"></span>
+    </div>
+    <div class="badge-free">Beta · Free</div>
+  </div>
 </header>
 
 <main>
   <div class="hero">
-    <div class="hero-tag">AI-аналитика для бизнеса</div>
-    <h1>Умный анализ вашего<br>бизнеса за <em>30 секунд</em></h1>
-    <p>Введите данные — получите выводы, прогнозы и план действий.<br>Экспорт в <strong style="-webkit-text-fill-color:initial;color:var(--accent2)">PDF</strong> и <strong style="-webkit-text-fill-color:initial;color:#1DB954">Excel</strong> одним кликом.</p>
+    <div class="eyebrow">AI-аналитика для бизнеса</div>
+    <h1>Умный анализ вашего<br>бизнеса за <span class="grad">30 секунд</span></h1>
+    <p class="hero-sub">Введите данные — получите выводы, прогнозы и план действий.<br>Экспорт в <strong>PDF</strong> и <strong>Excel</strong> одним кликом.</p>
 
-    <div class="section-label">Выберите тип бизнеса</div>
+    <!-- LOCALE SELECTOR -->
+    <div class="locale-bar">
+      <span class="locale-label">Валюта</span>
+      <select class="locale-select" id="currency-select" onchange="updateCurrency()">
+        <option value="USD">🇺🇸 USD — $</option>
+        <option value="EUR">🇪🇺 EUR — €</option>
+        <option value="UAH">🇺🇦 UAH — ₴</option>
+        <option value="KZT">🇰🇿 KZT — ₸</option>
+        <option value="GBP">🇬🇧 GBP — £</option>
+        <option value="PLN">🇵🇱 PLN — zł</option>
+        <option value="CZK">🇨🇿 CZK — Kč</option>
+        <option value="BYN">🇧🇾 BYN — Br</option>
+        <option value="GEL">🇬🇪 GEL — ₾</option>
+        <option value="AZN">🇦🇿 AZN — ₼</option>
+        <option value="OTHER">🌍 Другая</option>
+      </select>
+      <span class="locale-label" style="margin-left:6px">Регион</span>
+      <select class="locale-select" id="region-select" onchange="updateRegion()">
+        <option value="general">🌍 Универсально</option>
+        <option value="ua">🇺🇦 Украина</option>
+        <option value="kz">🇰🇿 Казахстан</option>
+        <option value="by">🇧🇾 Беларусь</option>
+        <option value="ge">🇬🇪 Грузия</option>
+        <option value="eu">🇪🇺 Европа</option>
+        <option value="us">🇺🇸 США / Канада</option>
+      </select>
+    </div>
+
+    <div class="section-eyebrow">Выберите тип бизнеса</div>
     <div class="niches">
-      <button class="niche-btn" onclick="selectNiche('ecom')" id="niche-ecom"><span class="icon">🛒</span>Интернет-магазин</button>
-      <button class="niche-btn" onclick="selectNiche('cafe')" id="niche-cafe"><span class="icon">☕</span>Кафе / Ресторан</button>
-      <button class="niche-btn" onclick="selectNiche('freelance')" id="niche-freelance"><span class="icon">💼</span>Услуги / Фриланс</button>
-      <button class="niche-btn" onclick="selectNiche('retail')" id="niche-retail"><span class="icon">🏪</span>Розничный магазин</button>
+      <button class="niche-btn" onclick="selectNiche('ecom')" id="niche-ecom">
+        <span class="ico">🛒</span><span>Интернет-магазин</span>
+      </button>
+      <button class="niche-btn" onclick="selectNiche('cafe')" id="niche-cafe">
+        <span class="ico">☕</span><span>Кафе / Ресторан</span>
+      </button>
+      <button class="niche-btn" onclick="selectNiche('freelance')" id="niche-freelance">
+        <span class="ico">💼</span><span>Услуги / Фриланс</span>
+      </button>
+      <button class="niche-btn" onclick="selectNiche('retail')" id="niche-retail">
+        <span class="ico">🏪</span><span>Розничный магазин</span>
+      </button>
     </div>
     <div class="analysis-types" id="analysis-types"></div>
   </div>
 
-  <!-- USAGE BAR -->
-  <div class="usage-bar" id="usage-bar" style="display:none">
-    <div class="usage-dots" id="usage-dots"></div>
-    <div class="usage-text" id="usage-text"></div>
-  </div>
-
+  <!-- FORM CARD -->
   <div class="form-card" id="form-card">
-    <div class="form-title" id="form-title"></div>
-    <div class="form-subtitle" id="form-subtitle"></div>
-  <div style="font-size:11px;color:var(--muted2);text-align:right;margin:-16px 0 16px;padding:0 2px">💡 Указывайте суммы в вашей валюте</div>
-    <div id="form-fields"></div>
-    <button class="submit-btn" onclick="runAnalysis()">✦ Получить AI-анализ</button>
+    <div class="form-top-bar"></div>
+    <div class="form-inner">
+      <div class="currency-hint">
+        <span>Суммы указывайте в:</span>
+        <span class="cur-badge" id="cur-badge">USD $</span>
+        <span id="cur-region-hint" style="margin-left:4px"></span>
+      </div>
+      <div class="form-title" id="form-title"></div>
+      <div class="form-subtitle" id="form-subtitle"></div>
+      <div id="form-fields"></div>
+      <button class="submit-btn" onclick="runAnalysis()">✦ Получить AI-анализ</button>
+    </div>
   </div>
 
+  <!-- LOADING -->
   <div class="loading-overlay" id="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">AI-аналитик обрабатывает данные…</div>
-    <div class="loading-step" id="loading-step">Анализируем показатели</div>
+    <div class="loader-ring"></div>
+    <div class="loading-text">Анализируем данные</div>
+    <div class="loading-step" id="loading-step">Обрабатываем показатели…</div>
   </div>
 
+  <!-- RESULT -->
   <div class="result-card" id="result-card">
-    <div class="result-header">
+    <div class="result-topbar">
       <div class="result-title">📊 Результаты анализа</div>
       <div class="result-actions">
         <button class="action-btn copy" onclick="copyResult()">📋 Копировать</button>
@@ -214,57 +605,114 @@ textarea{resize:vertical;min-height:76px;}
       </div>
     </div>
     <div class="result-body">
+      <div class="result-top-accent"></div>
       <div class="metrics-row" id="metrics-row"></div>
       <div class="result-content" id="result-content"></div>
     </div>
-    <div class="export-note">Экспорт в <span>Excel (.xlsx)</span> и <span>PDF</span> — все данные и анализ сохранены</div>
+    <div class="export-note">Excel — с кириллицей · <span>PDF</span> — транслитерация Latin</div>
   </div>
 
-  <div class="how-section">
-    <h2>Как это работает</h2>
-    <p class="sub">Три шага до готового отчёта</p>
-    <div class="steps">
-      <div class="step"><div class="step-num">01</div><h3>Выберите нишу</h3><p>Умная форма подстраивается под ваш бизнес — только нужные поля.</p></div>
-      <div class="step"><div class="step-num">02</div><h3>Введите данные</h3><p>Заполните ключевые показатели. Никаких файлов и интеграций.</p></div>
-      <div class="step"><div class="step-num">03</div><h3>Скачайте отчёт</h3><p>AI готовит анализ за 30 секунд. Экспортируйте в PDF или Excel.</p></div>
-    </div>
-  </div>
   <!-- PAYWALL -->
   <div class="paywall-overlay" id="paywall-overlay">
     <div class="paywall-card">
+      <div class="paywall-top"></div>
       <div class="paywall-icon">🔐</div>
       <div class="paywall-title">Лимит исчерпан</div>
-      <div class="paywall-sub">Вы использовали 3 бесплатных анализа.<br>Получите полный доступ — без ограничений.</div>
+      <div class="paywall-sub">3 бесплатных анализа использованы.<br>Получите полный доступ без ограничений.</div>
       <div class="paywall-features">
-        <div class="paywall-feature"><span>✓</span> Безлимитные AI-анализы</div>
-        <div class="paywall-feature"><span>✓</span> Экспорт в PDF и Excel</div>
-        <div class="paywall-feature"><span>✓</span> Все 12 форм анализа</div>
-        <div class="paywall-feature"><span>✓</span> История отчётов</div>
+        <div class="paywall-feat"><span class="paywall-feat-icon">✓</span> Безлимитные AI-анализы</div>
+        <div class="paywall-feat"><span class="paywall-feat-icon">✓</span> Экспорт PDF и Excel</div>
+        <div class="paywall-feat"><span class="paywall-feat-icon">✓</span> Все 12 форм анализа</div>
+        <div class="paywall-feat"><span class="paywall-feat-icon">✓</span> История отчётов</div>
       </div>
-      <div class="paywall-price">
-        <div><span class="price-amount">$9</span><span class="price-period">/ месяц</span></div>
-        <div class="price-note">или $29 за год · отмена в любой момент</div>
+      <div class="price-block">
+        <div><span class="price-main">$9</span><span class="price-period"> / месяц</span></div>
+        <div class="price-note">ИЛИ $29 / ГОД · ОТМЕНА В ЛЮБОЙ МОМЕНТ</div>
       </div>
-      <a class="pay-btn" href="https://YOUR_LEMONSQUEEZY_LINK" target="_blank" onclick="trackPayClick('monthly')">
-        Получить доступ за $9/мес
+      <a class="pay-btn-primary" href="https://YOUR_LEMONSQUEEZY_LINK" target="_blank">
+        Получить доступ за $9/мес →
       </a>
-      <a class="pay-btn pay-btn-outline" href="https://YOUR_LEMONSQUEEZY_LINK_YEARLY" target="_blank" onclick="trackPayClick('yearly')">
+      <a class="pay-btn-secondary" href="https://YOUR_LEMONSQUEEZY_LINK_YEARLY" target="_blank">
         Год за $29 — сэкономить 73%
       </a>
-      <div class="pay-secure">🔒 Безопасная оплата · <span>Visa, Mastercard, PayPal</span></div>
+      <div class="pay-secure">🔒 VISA · MASTERCARD · PAYPAL · APPLE PAY</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how-section">
+    <h2>Как это работает</h2>
+    <p class="how-sub">Три шага до готового отчёта</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Выберите нишу</h3>
+        <p>Умная форма подстраивается под ваш бизнес — только нужные поля, ваша валюта и регион.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Введите данные</h3>
+        <p>Заполните ключевые показатели. Никаких файлов, интеграций и выгрузок.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Скачайте отчёт</h3>
+        <p>AI готовит анализ за 30 секунд. Экспортируйте в PDF или Excel.</p>
+      </div>
     </div>
   </div>
 </main>
-
 <script>
-const NICHES={
-  ecom:{label:'Интернет-магазин',types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'}]},
-  cafe:{label:'Кафе / Ресторан',types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'}]},
-  freelance:{label:'Услуги / Фриланс',types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'}]},
-  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}]}
+// ── CURRENCY & REGION STATE ───────────────────────────────────────────────────
+const CURRENCIES = {
+  USD: { symbol: '$', name: 'USD $' },
+  EUR: { symbol: '€', name: 'EUR €' },
+  UAH: { symbol: '₴', name: 'UAH ₴' },
+  KZT: { symbol: '₸', name: 'KZT ₸' },
+  GBP: { symbol: '£', name: 'GBP £' },
+  PLN: { symbol: 'zł', name: 'PLN zł' },
+  CZK: { symbol: 'Kč', name: 'CZK Kč' },
+  BYN: { symbol: 'Br', name: 'BYN Br' },
+  GEL: { symbol: '₾', name: 'GEL ₾' },
+  AZN: { symbol: '₼', name: 'AZN ₼' },
+  OTHER: { symbol: '', name: 'Другая' }
 };
-const F={};
 
+const REGIONS = {
+  general: { hint: '' },
+  ua: { hint: '🇺🇦 Украина' },
+  kz: { hint: '🇰🇿 Казахстан' },
+  by: { hint: '🇧🇾 Беларусь' },
+  ge: { hint: '🇬🇪 Грузия' },
+  eu: { hint: '🇪🇺 Европа' },
+  us: { hint: '🇺🇸 США / Канада' }
+};
+
+let currentCurrency = 'USD';
+let currentRegion = 'general';
+
+function updateCurrency() {
+  currentCurrency = document.getElementById('currency-select').value;
+  const badge = document.getElementById('cur-badge');
+  if(badge) badge.textContent = CURRENCIES[currentCurrency]?.name || currentCurrency;
+}
+function updateRegion() {
+  currentRegion = document.getElementById('region-select').value;
+  const hint = document.getElementById('cur-region-hint');
+  if(hint) hint.textContent = REGIONS[currentRegion]?.hint || '';
+}
+function getCurrencySymbol() {
+  return CURRENCIES[currentCurrency]?.symbol || '';
+}
+
+// ── NICHES ────────────────────────────────────────────────────────────────────
+const NICHES = {
+  ecom:     { label:'Интернет-магазин', types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'}] },
+  cafe:     { label:'Кафе / Ресторан',  types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'}] },
+  freelance:{ label:'Услуги / Фриланс', types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'}] },
+  retail:   { label:'Розничный магазин',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}] }
+};
+const F = {};
 F.ecom_sales={
   title:'Анализ продаж интернет-магазина',subtitle:'Данные за последние 6 месяцев',
   prompt:d=>`Ты опытный e-commerce аналитик. Проанализируй данные и дай структурированный отчёт.
@@ -621,7 +1069,7 @@ F.retail_forecast={
   metrics:d=>[{val:d.check?parseInt(d.check).toLocaleString('ru')+'':'—',lbl:'Средний чек',cls:'neutral'},{val:d.trx||'—',lbl:'Транзакций/день',cls:'neutral'},{val:d.season||'—',lbl:'Сезонность',cls:'neutral'}]
 };
 
-// ── Fingerprint + Usage Counter ───────────────────────────────────────────────
+// ── FINGERPRINT + USAGE COUNTER ───────────────────────────────────────────────
 const FREE_LIMIT = 3;
 const STORAGE_KEY = 'dm_usage_v1';
 let fpHash = null;
@@ -641,73 +1089,44 @@ async function getFingerprint() {
     return 'fb_'+Math.abs(h).toString(36);
   }
 }
-
 function saveUsageAll(data) {
-  const s = JSON.stringify(data);
-  try { localStorage.setItem(STORAGE_KEY, s); } catch(e){}
-  try { sessionStorage.setItem(STORAGE_KEY, s); } catch(e){}
-  try {
-    const exp = new Date(Date.now()+365*24*60*60*1000).toUTCString();
-    document.cookie = STORAGE_KEY+'='+encodeURIComponent(s)+'; expires='+exp+'; path=/; SameSite=Strict';
-  } catch(e){}
+  const s=JSON.stringify(data);
+  try{localStorage.setItem(STORAGE_KEY,s);}catch(e){}
+  try{sessionStorage.setItem(STORAGE_KEY,s);}catch(e){}
+  try{const exp=new Date(Date.now()+365*24*60*60*1000).toUTCString();document.cookie=STORAGE_KEY+'='+encodeURIComponent(s)+'; expires='+exp+'; path=/; SameSite=Strict';}catch(e){}
 }
-
 function loadUsageAll() {
   const sources=[];
   try{const r=localStorage.getItem(STORAGE_KEY);if(r)sources.push(JSON.parse(r));}catch(e){}
   try{const r=sessionStorage.getItem(STORAGE_KEY);if(r)sources.push(JSON.parse(r));}catch(e){}
-  try{
-    const m=document.cookie.match(new RegExp(STORAGE_KEY+'=([^;]+)'));
-    if(m)sources.push(JSON.parse(decodeURIComponent(m[1])));
-  }catch(e){}
+  try{const m=document.cookie.match(new RegExp(STORAGE_KEY+'=([^;]+)'));if(m)sources.push(JSON.parse(decodeURIComponent(m[1])));}catch(e){}
   if(!sources.length)return{};
-  // Take record with highest count (anti-tamper: clearing one storage won't help)
   return sources.reduce((best,cur)=>{
-    const b=fpHash&&best[fpHash]?best[fpHash]:0;
-    const c=fpHash&&cur[fpHash]?cur[fpHash]:0;
+    const b=fpHash&&best[fpHash]?best[fpHash]:0,c=fpHash&&cur[fpHash]?cur[fpHash]:0;
     return c>b?cur:best;
   },sources[0]);
 }
-
 function getUsageCount(){return fpHash?(loadUsageAll()[fpHash]||0):0;}
-
-function incrementUsage(){
-  if(!fpHash)return;
-  const data=loadUsageAll();
-  data[fpHash]=(data[fpHash]||0)+1;
-  saveUsageAll(data);
-}
-
+function incrementUsage(){if(!fpHash)return;const data=loadUsageAll();data[fpHash]=(data[fpHash]||0)+1;saveUsageAll(data);}
 function hasReachedLimit(){return getUsageCount()>=FREE_LIMIT;}
-
 function updateUsageUI(){
-  const count=getUsageCount(), remaining=Math.max(0,FREE_LIMIT-count);
-  const bar=document.getElementById('usage-bar');
-  const dots=document.getElementById('usage-dots');
-  const text=document.getElementById('usage-text');
-  if(!bar)return;
-  bar.style.display='flex';
+  const count=getUsageCount(),remaining=Math.max(0,FREE_LIMIT-count);
+  const container=document.getElementById('usage-counter-header');
+  const dots=document.getElementById('usage-dots-header');
+  const text=document.getElementById('usage-text-header');
+  if(!container)return;
+  container.style.display='flex';
   dots.innerHTML=Array.from({length:FREE_LIMIT},(_,i)=>{
-    const used=i<count, isLast=i===FREE_LIMIT-1&&used;
-    return `<div class="usage-dot ${used?(isLast?'last':'used'):''}"></div>`;
+    const used=i<count,isLast=i===FREE_LIMIT-1&&used;
+    return `<div class="usage-dot ${used?(isLast?'last-used':'used'):''}"></div>`;
   }).join('');
-  if(remaining===0){text.textContent='Лимит исчерпан';text.style.color='var(--accent3)';}
-  else{text.textContent=`Бесплатно: ${remaining} из ${FREE_LIMIT}`;text.style.color=remaining===1?'var(--accent3)':'var(--muted2)';}
+  text.textContent=remaining===0?'Лимит':`${remaining}/${FREE_LIMIT}`;
+  text.style.color=remaining===0?'var(--red)':remaining===1?'var(--yellow)':'var(--muted)';
 }
+function showPaywall(){document.getElementById('paywall-overlay').classList.add('visible');document.body.style.overflow='hidden';}
+(async()=>{fpHash=await getFingerprint();updateUsageUI();})();
 
-function showPaywall(){
-  document.getElementById('paywall-overlay').classList.add('visible');
-  document.body.style.overflow='hidden';
-}
-
-function trackPayClick(plan){console.log('Pay:',plan);}
-
-(async()=>{
-  fpHash=await getFingerprint();
-  updateUsageUI();
-})();
-
-// ── State ────────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let cNiche=null,cType=null,rawText='',inputData={},nicheLabel='',typeLabel='';
 const v=(id,def='')=>document.getElementById(id)?.value?.trim()||def;
 
@@ -720,7 +1139,6 @@ function selectNiche(n){
   c.classList.add('visible');
   hide('form-card');hide('result-card');hide('loading');
 }
-
 function selectType(t,lbl){
   cType=t;typeLabel=lbl;nicheLabel=NICHES[cNiche].label;
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
@@ -729,224 +1147,246 @@ function selectType(t,lbl){
   document.getElementById('form-title').textContent=form.title;
   document.getElementById('form-subtitle').textContent=form.subtitle;
   document.getElementById('form-fields').innerHTML=form.fields();
+  updateCurrencyBadge();
   show('form-card');hide('result-card');hide('loading');
   setTimeout(()=>document.getElementById('form-card').scrollIntoView({behavior:'smooth',block:'start'}),100);
 }
+function updateCurrencyBadge(){
+  const badge=document.getElementById('cur-badge');
+  if(badge) badge.textContent=CURRENCIES[currentCurrency]?.name||currentCurrency;
+  const hint=document.getElementById('cur-region-hint');
+  if(hint) hint.textContent=REGIONS[currentRegion]?.hint||'';
+}
 
 async function runAnalysis(){
-  // Check limit BEFORE running
   if(hasReachedLimit()){showPaywall();return;}
   const key=cNiche+'_'+cType,form=F[key];if(!form)return;
   inputData=form.getData();
+  // Inject currency info into prompt
+  const cur=CURRENCIES[currentCurrency]?.symbol||'';
+  const reg=currentRegion!=='general'?(REGIONS[currentRegion]?.hint||''):'';
+  const promptText=form.prompt(inputData)
+    +(cur?`\n\nВалюта: ${currentCurrency} (${cur})`:'')
+    +(reg?`\nРегион: ${reg}`:'');
   hide('form-card');hide('result-card');show('loading');
-  const steps=['Анализируем показатели…','Выявляем паттерны…','Формируем рекомендации…','Готовим отчёт…'];
+  const steps=['Обрабатываем показатели…','Выявляем паттерны…','Формируем рекомендации…','Готовим отчёт…'];
   let si=0;const iv=setInterval(()=>{document.getElementById('loading-step').textContent=steps[si++%steps.length];},1100);
   try{
-    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:form.prompt(inputData)})});
+    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:promptText})});
     const d=await r.json();clearInterval(iv);
-    console.log('API response status:', r.status);
-    console.log('API response data:', JSON.stringify(d));
-    if(d.error){
-      rawText='Ошибка API: '+d.error.message;
-      clearInterval(iv);
-      renderResult(rawText,[]);
-      return;
-    }
+    if(d.error){rawText='Ошибка API: '+d.error.message;renderResult(rawText,[]);return;}
     rawText=d.content?.map(c=>c.text||'').join('')||'Не удалось получить анализ.';
-    incrementUsage();
-    updateUsageUI();
+    incrementUsage();updateUsageUI();
     renderResult(rawText,form.metrics?form.metrics(inputData):[]);
-  }catch(e){clearInterval(iv);rawText='Ошибка: '+e.message;console.error('Fetch error:',e);renderResult(rawText,[]);}
+  }catch(e){clearInterval(iv);rawText='Ошибка: '+e.message;renderResult(rawText,[]);}
 }
 
-function formatResultHTML(text) {
-  const sections = [];
-  const parts = text.split(/\*\*(.*?)\*\*/g);
-  // First part before any header
-  if(parts[0].trim()) {
-    sections.push({title:null, body:parts[0].trim()});
-  }
-  for(let i=1;i<parts.length;i+=2){
-    const title=parts[i].trim();
-    const body=(parts[i+1]||'').trim();
-    sections.push({title, body});
-  }
-  if(sections.length===0) return `<div class="section-body"><p>${text}</p></div>`;
+// ── RENDER RESULT ─────────────────────────────────────────────────────────────
+function formatReportHTML(text) {
+  // Clean markdown artifacts: ##, ###, # at line starts
+  const clean = text
+    .replace(/^#{1,4}\s*/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 
-  // Section icons map
-  const icons = {
-    'ОЦЕНКА':' 📊','ОБЩАЯ':'📊','ФИНАНСОВ':'💰','МЕТРИК':'📈','ПРОБЛЕМ':'⚠️',
-    'ЧТО РАБОТАЕТ':'✅','ХОРОШО':'✅','ДЕЙСТВИ':'🎯','РЕКОМЕНДА':'💡','ПЛАН':'🗓️',
-    'ПРОГНОЗ':'🔮','СТРАТЕГ':'🚀','ПОТОЛОК':'📉','СЛАБЫЕ':'🔍','ВЫРАСТИ':'📈',
-    'КЛИЕНТ':'🤝','ТРАФИК':'👥','МЕНЮ':'🍽️','СКЛАД':'📦','МАТРИЦ':'🔢',
-    'РИСКИ':'⚡','ДРАЙВЕР':'🚀','БЫСТР':'⚡','ЗВЁЗД':'⭐','ЦЕНОВ':'💲'
+  const parts = clean.split(/\*\*(.*?)\*\*/g);
+  const sections = [];
+  if(parts[0].trim()) sections.push({title:null, body:parts[0].trim()});
+  for(let i=1;i<parts.length;i+=2){
+    const title=parts[i].trim(), body=(parts[i+1]||'').trim();
+    if(title) sections.push({title, body});
+  }
+  if(!sections.length) return `<div class="section-body"><p>${clean}</p></div>`;
+
+  const ICONS = {
+    'ОЦЕНКА':'📊','ОБЩАЯ':'📊','ПОЗИЦИ':'📊','ФИНАНСОВ':'💰','КАРТИНА':'💰',
+    'МЕТРИК':'📈','ПОКАЗАТЕЛ':'📈','ПРОБЛЕМ':'⚠️','ЗОНЫ':'⚠️',
+    'РАБОТАЕТ':'✅','ХОРОШО':'✅','ДЕЙСТВИ':'🎯','РЕКОМЕНДА':'💡',
+    'ПЛАН':'🗓','ПРОГНОЗ':'🔮','СТРАТЕГ':'🚀','ПОТОЛОК':'📉',
+    'СЛАБЫЕ':'🔍','ВЫРАСТИ':'📈','КЛИЕНТ':'🤝','ТРАФИК':'👥',
+    'МЕНЮ':'🍽','МАТРИЦ':'🔢','РИСКИ':'⚡','БЫСТР':'⚡',
+    'ЗВЁЗД':'⭐','ЦЕНОВ':'💲','ABC':'🔢','СКЛАД':'📦','НЕЛИКВИД':'📦'
   };
-  function getIcon(title) {
-    for(const [k,v] of Object.entries(icons)){
-      if(title.toUpperCase().includes(k)) return v;
-    }
+  function icon(t){
+    const up=t.toUpperCase();
+    for(const [k,v] of Object.entries(ICONS)) if(up.includes(k)) return v;
     return '▸';
   }
 
   return sections.map(sec => {
-    // Format body: detect bullet-like lines starting with - or •
-    const bodyLines = sec.body.split('\n').filter(l=>l.trim());
+    const bodyLines = sec.body.split('\n').map(l=>l.trim()).filter(Boolean);
     const bodyHTML = bodyLines.map(line => {
-      const t = line.trim();
-      if(t.startsWith('–') || t.startsWith('-') || t.startsWith('•')) {
-        const content = t.replace(/^[–\-•]\s*/,'');
-        // Bold any text before colon
-        const formatted = content.replace(/^([^:]+:)/,'<span class="highlight">$1</span>');
-        return `<div class="bullet-item">${formatted}</div>`;
+      // Skip leftover markdown markers
+      if(/^#{1,4}$/.test(line) || line==='-' || line==='–') return '';
+      const isBullet = /^[–\-•*]\s/.test(line);
+      if(isBullet) {
+        const content = line.replace(/^[–\-•*]\s*/,'');
+        // Split on first colon for key:value style
+        const colonIdx = content.indexOf(':');
+        if(colonIdx>0 && colonIdx<40){
+          const key = content.substring(0,colonIdx);
+          const val = content.substring(colonIdx+1).trim();
+          return `<div class="bullet-item"><span class="bullet-arrow">→</span><span><span class="bullet-key">${key}:</span> ${val}</span></div>`;
+        }
+        return `<div class="bullet-item"><span class="bullet-arrow">→</span><span>${content}</span></div>`;
       }
-      if(t) return `<p>${t.replace(/\*(.*?)\*/g,'<em>$1</em>')}</p>`;
-      return '';
+      return `<p>${line.replace(/\*(.*?)\*/g,'<em>$1</em>')}</p>`;
     }).join('');
 
-    if(!sec.title) return `<div class="section-body">${bodyHTML}</div>`;
+    if(!sec.title) return `<div class="report-intro">${bodyHTML}</div>`;
     return `<div class="section-block">
-      <div class="section-header"><strong>${getIcon(sec.title)} ${sec.title}</strong></div>
+      <div class="section-header">
+        <span class="section-icon">${icon(sec.title)}</span>
+        <span class="section-title-text">${sec.title}</span>
+      </div>
       <div class="section-body">${bodyHTML}</div>
     </div>`;
   }).join('');
 }
 
-function renderResult(text,metrics){
+function renderResult(text, metrics){
   hide('loading');
-  const mr=document.getElementById('metrics-row');
-  mr.innerHTML=metrics.map(m=>`<div class="metric"><div class="metric-val ${m.cls||''}">${m.val}</div><div class="metric-label">${m.lbl}</div></div>`).join('');
-  document.getElementById('result-content').innerHTML=formatResultHTML(text);
+  document.getElementById('metrics-row').innerHTML=metrics.map(m=>
+    `<div class="metric"><div class="metric-val ${m.cls||''}">${m.val}</div><div class="metric-label">${m.lbl}</div></div>`
+  ).join('');
+  document.getElementById('result-content').innerHTML=formatReportHTML(text);
   show('result-card');
   setTimeout(()=>document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'start'}),100);
 }
 
 function show(id){document.getElementById(id).classList.add('visible');}
 function hide(id){document.getElementById(id).classList.remove('visible');}
-
 function copyResult(){
   navigator.clipboard.writeText(rawText).then(()=>{
-    const b=document.querySelector('.action-btn.copy');b.textContent='✓ Скопировано';
+    const b=document.querySelector('.action-btn.copy');
+    b.textContent='✓ Скопировано';
     setTimeout(()=>b.textContent='📋 Копировать',2000);
   });
 }
 
-// ── EXCEL EXPORT ───────────────────────────────────────────────────────────────
+// ── EXCEL EXPORT ──────────────────────────────────────────────────────────────
 function exportExcel(){
   if(!rawText)return;
   const wb=XLSX.utils.book_new();
-  const date=new Date().toLocaleDateString('ru-RU');
+  const date=new Date().toLocaleDateString();
+  const cur=currentCurrency;
+  const reg=REGIONS[currentRegion]?.hint||'Универсально';
 
-  // Sheet 1: Input data
-  const iRows=[['DataMind AI — Входные данные'],['Дата анализа',date],['Ниша',nicheLabel],['Тип анализа',typeLabel],['','']];
+  const iRows=[
+    ['DataMind AI — Входные данные'],
+    ['Дата',date],['Ниша',nicheLabel],['Тип',typeLabel],
+    ['Валюта',cur],['Регион',reg],['']
+  ];
   Object.entries(inputData).forEach(([k,val])=>iRows.push([k,val]));
   const ws1=XLSX.utils.aoa_to_sheet(iRows);
-  ws1['!cols']=[{wch:28},{wch:60}];
-  XLSX.utils.book_append_sheet(wb,ws1,'Входные данные');
+  ws1['!cols']=[{wch:28},{wch:70}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Данные');
 
-  // Sheet 2: Sections
   const sections=parseSections(rawText);
   const aRows=[['DataMind AI — Анализ'],[''],['Раздел','Содержание']];
   sections.forEach(s=>aRows.push([s.title,s.body]));
   const ws2=XLSX.utils.aoa_to_sheet(aRows);
-  ws2['!cols']=[{wch:30},{wch:90}];
+  ws2['!cols']=[{wch:32},{wch:100}];
   XLSX.utils.book_append_sheet(wb,ws2,'AI Анализ');
 
-  XLSX.writeFile(wb,`datamind-${new Date().toISOString().split('T')[0]}.xlsx`);
+  XLSX.writeFile(wb,'datamind-'+new Date().toISOString().split('T')[0]+'.xlsx');
 }
 
-// ── PDF EXPORT ─────────────────────────────────────────────────────────────────
+// ── PDF EXPORT ────────────────────────────────────────────────────────────────
 function exportPDF(){
   if(!rawText)return;
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight(),mg=18,cw=pw-mg*2;
   let y=0;
+  const newPage=()=>{doc.addPage();y=22;drawFooter();};
+  const check=(n=10)=>{if(y+n>ph-16)newPage();};
 
+  // Transliterate cyrillic for PDF
+  function tr(s){
+    if(!s)return'';
+    const m={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya','А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'Yo','Ж':'Zh','З':'Z','И':'I','Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'Kh','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Sch','Ъ':'','Ы':'Y','Ь':'','Э':'E','Ю':'Yu','Я':'Ya'};
+    return s.split('').map(c=>m[c]!==undefined?m[c]:c).join('');
+  }
   const drawFooter=()=>{
     const pg=doc.internal.getCurrentPageInfo().pageNumber;
-    doc.setFillColor(245,245,252);doc.rect(0,ph-10,pw,10,'F');
-    doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(150,150,180);
-    doc.text('DataMind AI',mg,ph-4);
+    doc.setFillColor(13,15,28);doc.rect(0,ph-10,pw,10,'F');
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(90,90,128);
+    doc.text('DataMind AI · datamind.app',mg,ph-4);
     doc.text('Page '+pg,pw-mg,ph-4,{align:'right'});
   };
-  const newPage=()=>{doc.addPage();y=22;drawFooter();};
-  const check=(need=10)=>{if(y+need>ph-16)newPage();};
 
-  // Transliterate cyrillic for PDF (jsPDF built-in fonts dont support cyrillic)
-  function tr(str){
-    if(!str)return'';
-    const m={'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'sch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya','А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'Yo','Ж':'Zh','З':'Z','И':'I','Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T','У':'U','Ф':'F','Х':'Kh','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Sch','Ъ':'','Ы':'Y','Ь':'','Э':'E','Ю':'Yu','Я':'Ya'};
-    return str.split('').map(c=>m[c]!==undefined?m[c]:c).join('');
-  }
+  // Header bar
+  doc.setFillColor(15,17,32);doc.rect(0,0,pw,15,'F');
+  doc.setFillColor(79,142,247);doc.rect(0,13,pw/2,2,'F');
+  doc.setFillColor(0,229,176);doc.rect(pw/2,13,pw/2,2,'F');
+  doc.setTextColor(242,242,248);doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('DataMind AI',mg,9.5);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(140,150,200);
+  doc.text('Analytics Report · '+new Date().toLocaleDateString(),pw-mg,9.5,{align:'right'});
+  y=25;drawFooter();
 
-  // Header
-  doc.setFillColor(30,32,55);doc.rect(0,0,pw,14,'F');
-  doc.setFillColor(91,138,245);doc.rect(0,12,pw,2,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');
-  doc.text('DataMind AI',mg,9);
-  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(180,195,255);
-  doc.text('Business Analytics Report · '+new Date().toLocaleDateString(),pw-mg,9,{align:'right'});
-  y=24;drawFooter();
-
-  // Title
-  doc.setFontSize(22);doc.setFont('helvetica','bold');doc.setTextColor(25,25,50);
-  doc.text('DataMind AI Report',mg,y);y+=9;
-  doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(100,100,150);
-  doc.text(tr(nicheLabel)+' / '+tr(typeLabel),mg,y);y+=10;
-  doc.setDrawColor(91,138,245);doc.setLineWidth(0.4);doc.line(mg,y,pw-mg,y);y+=8;
+  // Title section
+  doc.setFontSize(20);doc.setFont('helvetica','bold');doc.setTextColor(242,242,248);
+  doc.setFillColor(13,15,28);
+  doc.text('DataMind Report',mg,y);y+=8;
+  doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(120,130,180);
+  doc.text(tr(nicheLabel)+' / '+tr(typeLabel)+' · '+currentCurrency,mg,y);y+=8;
+  doc.setDrawColor(79,142,247);doc.setLineWidth(0.4);doc.line(mg,y,pw-mg,y);y+=8;
 
   // Input data
-  const entries=Object.entries(inputData).filter(([,v])=>v&&v!=='не указано'&&v!='0');
+  const entries=Object.entries(inputData).filter(([,val])=>val&&val!=='не указано'&&val!='0');
   if(entries.length){
-    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(79,142,247);
     doc.text('INPUT DATA',mg,y);y+=6;
     entries.forEach(([k,val],i)=>{
       check(7);
-      doc.setFillColor(i%2===0?248:255,i%2===0?248:255,i%2===0?255:255);
-      doc.rect(mg,y-4,cw,7,'F');
-      doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(90,90,130);
-      doc.text(tr(String(k)),mg+2,y);
-      doc.setFont('helvetica','normal');doc.setTextColor(40,40,70);
-      doc.text(tr(String(val)).substring(0,80),mg+58,y);
+      doc.setFillColor(i%2===0?18:22,i%2===0?20:24,i%2===0?35:40);
+      doc.rect(mg,y-4.5,cw,7,'F');
+      doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(100,110,160);
+      doc.text(tr(String(k)).substring(0,30),mg+2,y);
+      doc.setFont('helvetica','normal');doc.setTextColor(200,200,230);
+      doc.text(tr(String(val)).substring(0,72),mg+60,y);
       y+=7;
-    });
-    y+=6;
+    });y+=6;
   }
 
-  // Analysis sections
+  // AI Analysis sections
   check(15);
-  doc.setDrawColor(200,210,240);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=8;
-  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(60,60,100);
+  doc.setDrawColor(40,45,70);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=8;
+  doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(79,142,247);
   doc.text('AI ANALYSIS & RECOMMENDATIONS',mg,y);y+=8;
 
   parseSections(rawText).forEach(sec=>{
     check(14);
-    doc.setFillColor(91,138,245);doc.rect(mg,y-5,3,9,'F');
-    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(30,30,70);
+    doc.setFillColor(20,25,50);doc.rect(mg,y-5,cw,9,'F');
+    doc.setFillColor(79,142,247);doc.rect(mg,y-5,3,9,'F');
+    doc.setFontSize(9.5);doc.setFont('helvetica','bold');doc.setTextColor(200,210,255);
     doc.text(tr(sec.title),mg+6,y);y+=7;
-    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(65,65,100);
-    doc.splitTextToSize(tr(sec.body),cw).forEach(ln=>{check(6);doc.text(ln,mg,y);y+=5.3;});
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(160,165,200);
+    doc.splitTextToSize(tr(sec.body),cw).forEach(ln=>{check(6);doc.text(ln,mg,y);y+=5.2;});
     y+=5;
   });
 
-  // Note about transliteration
-  check(10);
-  doc.setFontSize(8);doc.setFont('helvetica','italic');doc.setTextColor(160,160,190);
-  doc.text('* Text transliterated to Latin for PDF compatibility. Full text available in Excel export.',mg,y);
+  check(8);
+  doc.setFontSize(7.5);doc.setFont('helvetica','italic');doc.setTextColor(70,75,110);
+  doc.text('* Cyrillic text transliterated for PDF. Full text available in Excel.',mg,y);
 
   const total=doc.internal.getNumberOfPages();
   for(let i=1;i<=total;i++){doc.setPage(i);drawFooter();}
-  doc.save('datamind-report-'+new Date().toISOString().split('T')[0]+'.pdf');
+  doc.save('datamind-'+new Date().toISOString().split('T')[0]+'.pdf');
 }
 
-
+// ── PARSE SECTIONS ────────────────────────────────────────────────────────────
 function parseSections(text){
-  const out=[];const parts=text.split(/\*\*(.*?)\*\*/g);
+  const clean=text.replace(/^#{1,4}\s*/gm,'').trim();
+  const parts=clean.split(/\*\*(.*?)\*\*/g);
+  const out=[];
   for(let i=1;i<parts.length;i+=2){
-    const title=parts[i].trim(),body=(parts[i+1]||'').trim().replace(/\n+/g,' ');
+    const title=parts[i].trim(),body=(parts[i+1]||'').trim().replace(/\n+/g,' ').replace(/^[#\s]+/,'');
     if(title&&body)out.push({title,body});
   }
-  if(!out.length)out.push({title:'Анализ',body:text.replace(/\n+/g,' ')});
+  if(!out.length)out.push({title:'Analysis',body:clean.replace(/\n+/g,' ')});
   return out;
 }
 </script>
