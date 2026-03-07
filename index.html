@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://openfpcdn.io/fingerprintjs/v4/iife.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
 :root{
   --bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--s4:#1f1f28;
@@ -934,7 +934,7 @@ F.content_strategy={
 const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
 
-const { createClient: sbCreate } = supabase;
+const { createClient: sbCreate } = window.supabase || {};
 const sb = sbCreate(SUPA_URL, SUPA_ANON);
 let currentUser = null;
 let currentSession = null;
@@ -966,16 +966,20 @@ function renderAuthArea() {
 
 // ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
 async function saveAnalysisToCloud(resultText) {
-  if (!currentSession) return;
+  console.log('[DM] saveAnalysisToCloud called');
+  console.log('[DM] currentSession:', currentSession ? 'EXISTS' : 'NULL');
+  console.log('[DM] window.supabase:', window.supabase ? 'LOADED' : 'NOT LOADED');
+  if (!currentSession) { console.warn('[DM] No session — not logged in'); return; }
+  if (!window.supabase) { console.warn('[DM] Supabase SDK not loaded'); return; }
+
   try {
     const token = currentSession.access_token;
-    // Validate token is ASCII-safe before putting in header
-    const isAscii = /^[ -]*$/.test(token);
-    const headers = { 'Content-Type': 'application/json' };
-    // Pass token in body to avoid ISO-8859-1 header restriction
+    console.log('[DM] Token length:', token ? token.length : 0);
+    console.log('[DM] Sending to /api/save-analysis...');
+
     const r = await fetch('/api/save-analysis', {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         token,
         niche: cNiche,
@@ -988,12 +992,21 @@ async function saveAnalysisToCloud(resultText) {
         result_text: resultText
       })
     });
+
+    console.log('[DM] Response status:', r.status);
     const data = await r.json();
+    console.log('[DM] Response data:', data);
+
     if (data.success) {
+      console.log('[DM] Saved! ID:', data.id);
       const badge = document.getElementById('save-badge');
       if (badge) { badge.classList.add('visible'); setTimeout(() => badge.classList.remove('visible'), 3000); }
+    } else {
+      console.error('[DM] Save error:', data.error);
     }
-  } catch(e) { console.warn('Save failed:', e); }
+  } catch(e) {
+    console.error('[DM] Fetch exception:', e.message, e);
+  }
 }
 
 </script>
