@@ -12,7 +12,7 @@
   --b1:rgba(255,255,255,0.045);--b2:rgba(255,255,255,0.085);--b3:rgba(255,255,255,0.14);
   --a1:#7b9cff;--a2:#35e8c3;--a3:#ff6584;--a4:#f5a623;
   --gold:#d4a843;--gold2:#e8c56a;--gdim:rgba(212,168,67,0.1);--gborder:rgba(212,168,67,0.22);
-  --t1:#ffffff;--t2:#c2c2d4;--t3:#787890;--t4:#4a4a62;
+  --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
   --r:14px;--r2:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -69,8 +69,8 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;
 .stat-val.gold{color:var(--gold2);}
 .stat-val.teal{color:var(--a2);}
 .stat-val.blue{color:var(--a1);}
-.stat-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;
-  color:var(--t3);text-transform:uppercase;letter-spacing:.8px;}
+.stat-label{font-family:'DM Mono',monospace;font-size:11px;font-weight:400;
+  color:var(--t2);text-transform:uppercase;letter-spacing:.8px;}
 
 /* SECTION HEADER */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -228,7 +228,8 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;
       <div class="stat-label">За эту неделю</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val yellow" id="stat-top-niche">—</div>
+      <div class="stat-val" id="stat-top-niche" style="font-size:26px;line-height:1;">—</div>
+      <div class="stat-val-sub" id="stat-top-label" style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px;min-height:18px;"></div>
       <div class="stat-label">Топ ниша</div>
     </div>
     <div class="stat-card">
@@ -334,7 +335,8 @@ function updateStats() {
 
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-week').textContent = week;
-  document.getElementById('stat-top-niche').textContent = topNiche ? (NICHE_ICONS[topNiche[0]]||'') : '—';
+  document.getElementById('stat-top-niche').innerHTML = topNiche ? `<span style="font-size:20px">${NICHE_ICONS[topNiche[0]]||''}</span>` : '—';
+  document.getElementById('stat-top-label').textContent = topNiche ? (NICHE_LABELS[topNiche[0]]||topNiche[0]) : '';
   document.getElementById('stat-last').textContent = last;
 }
 
