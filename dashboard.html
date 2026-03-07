@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataMind — Личный кабинет</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--s4:#1f1f28;--b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.14);--a1:#6c8fff;--a2:#00e5c3;--a3:#ff5f7e;--a4:#f5a623;--ag1:rgba(108,143,255,0.1);--ag2:rgba(0,229,195,0.08);--t1:#f0f0f8;--t2:#a0a0c0;--t3:#60607a;--t4:#35354a;--r:14px;--r2:10px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 100% 50% at 0% 0%,rgba(108,143,255,0.05) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(0,229,195,0.04) 0%,transparent 60%);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:4px;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:56px;background:rgba(6,6,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.logo-mark{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;}
+.logo-text{font-size:14px;font-weight:700;color:var(--t1);}
+.logo-text span{color:var(--a1);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.user-email{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);}
+.logout-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--t3);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.logout-btn:hover{border-color:var(--a3);color:var(--a3);}
+.new-btn{padding:6px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--a1),#5a4de8);color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s;text-decoration:none;display:flex;align-items:center;gap:5px;}
+.new-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,143,255,0.3);}
+
+/* MAIN */
+main{max-width:960px;margin:0 auto;padding:36px 24px 80px;position:relative;z-index:1;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px;}
+.stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:18px 20px;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:500;color:var(--t1);margin-bottom:4px;letter-spacing:-1px;}
+.stat-val.blue{color:var(--a1);}
+.stat-val.teal{color:var(--a2);}
+.stat-val.red{color:var(--a3);}
+.stat-val.yellow{color:var(--a4);}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;color:var(--t4);text-transform:uppercase;letter-spacing:1px;}
+
+/* SECTION HEADER */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:13px;font-weight:700;color:var(--t2);letter-spacing:0.3px;}
+.section-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);padding:3px 8px;background:var(--s2);border-radius:6px;}
+
+/* NICHE FILTER */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.filter-btn{padding:6px 13px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t3);font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;}
+.filter-btn:hover{border-color:var(--b2);color:var(--t1);}
+.filter-btn.active{border-color:var(--a1);background:var(--ag1);color:var(--a1);}
+
+/* ANALYSIS CARDS */
+.analyses-list{display:flex;flex-direction:column;gap:8px;}
+.an-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;transition:border-color 0.15s;cursor:pointer;}
+.an-card:hover{border-color:var(--b2);}
+.an-card-head{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+.an-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--s2);}
+.an-info{flex:1;min-width:0;}
+.an-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.an-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);margin-top:2px;}
+.an-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.an-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);}
+.an-del{width:28px;height:28px;border-radius:7px;border:1px solid var(--b1);background:transparent;color:var(--t4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.15s;}
+.an-del:hover{border-color:var(--a3);color:var(--a3);background:rgba(255,95,126,0.08);}
+.an-body{display:none;padding:0 16px 16px;}
+.an-card.expanded .an-body{display:block;}
+.an-card.expanded{border-color:var(--a1);}
+
+/* REPORT IN CARD */
+.report-wrap{background:var(--s2);border-radius:var(--r2);overflow:hidden;}
+.report-top{height:2px;background:linear-gradient(90deg,var(--a2),var(--a1));}
+.report-scroll{padding:16px 18px;max-height:440px;overflow-y:auto;}
+.rsec{margin-bottom:12px;border-radius:9px;overflow:hidden;border:1px solid var(--b1);}
+.rsec:last-child{margin-bottom:0;}
+.shead{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--s3);}
+.sico{font-size:12px;}
+.sname{font-size:10px;font-weight:700;color:var(--t1);letter-spacing:0.5px;text-transform:uppercase;}
+.sbody{padding:10px 12px;font-size:13px;color:var(--t2);line-height:1.7;}
+.sbody p{margin-bottom:6px;}
+.sbody p:last-child{margin-bottom:0;}
+.brow{display:flex;gap:8px;align-items:flex-start;padding:6px 9px;margin-bottom:4px;border-radius:6px;background:rgba(255,255,255,0.02);}
+.barr{color:var(--a2);font-size:10px;flex-shrink:0;font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.btxt{font-size:12px;color:var(--t2);line-height:1.6;}
+.kw{color:var(--t1);font-weight:600;}
+.report-actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--b1);}
+.ract{padding:7px 14px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.ract:hover{border-color:var(--a1);color:var(--a1);}
+
+/* INPUT DATA */
+.input-section{margin-top:10px;}
+.input-toggle{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t4);cursor:pointer;padding:6px 0;display:inline-flex;align-items:center;gap:5px;letter-spacing:0.5px;text-transform:uppercase;}
+.input-toggle:hover{color:var(--t2);}
+.input-data{display:none;background:var(--s3);border-radius:9px;padding:12px;margin-top:8px;}
+.input-data.open{display:block;}
+.input-row{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12px;}
+.input-row:last-child{border-bottom:none;}
+.input-key{color:var(--t4);min-width:120px;font-family:'JetBrains Mono',monospace;font-size:10px;padding-top:1px;}
+.input-val{color:var(--t2);}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:64px 24px;}
+.empty-icon{font-size:48px;margin-bottom:16px;}
+.empty-title{font-size:18px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px;}
+.empty-sub{font-size:14px;color:var(--t2);margin-bottom:24px;}
+.empty-btn{display:inline-block;padding:12px 24px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--a1),#5a4de8);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.empty-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(108,143,255,0.3);}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 24px;color:var(--t3);font-size:14px;}
+.spinner{width:32px;height:32px;border:1.5px solid var(--b2);border-top-color:var(--a1);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* NICHE PILL COLORS */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
+.pill-ecom{background:rgba(108,143,255,0.12);color:var(--a1);}
+.pill-cafe{background:rgba(245,166,35,0.12);color:var(--a4);}
+.pill-freelance{background:rgba(0,229,195,0.1);color:var(--a2);}
+.pill-retail{background:rgba(255,95,126,0.1);color:var(--a3);}
+.pill-content{background:rgba(160,100,255,0.12);color:#b07fff;}
+
+/* DELETE CONFIRM */
+.del-confirm{display:none;position:fixed;inset:0;background:rgba(6,6,8,0.85);backdrop-filter:blur(10px);z-index:200;align-items:center;justify-content:center;padding:24px;}
+.del-confirm.visible{display:flex;}
+.del-box{background:var(--s1);border:1px solid var(--b2);border-radius:16px;padding:32px;max-width:360px;width:100%;text-align:center;}
+.del-box h3{font-size:18px;font-weight:800;margin-bottom:8px;}
+.del-box p{font-size:14px;color:var(--t2);margin-bottom:24px;line-height:1.6;}
+.del-btns{display:flex;gap:10px;}
+.del-cancel{flex:1;padding:11px;border-radius:10px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.del-cancel:hover{border-color:var(--b3);color:var(--t1);}
+.del-ok{flex:1;padding:11px;border-radius:10px;border:none;background:var(--a3);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.del-ok:hover{opacity:0.9;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr);}header{padding:0 16px;}.an-date{display:none;}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">
+    <div class="logo-mark">D</div>
+    <div class="logo-text">Data<span>Mind</span></div>
+  </a>
+  <div class="header-right">
+    <span class="user-email" id="user-email"></span>
+    <a class="new-btn" href="/">✦ Новый анализ</a>
+    <button class="logout-btn" onclick="doLogout()">Выйти</button>
+  </div>
+</header>
+
+<main>
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-val blue" id="stat-total">—</div>
+      <div class="stat-label">Всего анализов</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val teal" id="stat-week">—</div>
+      <div class="stat-label">За эту неделю</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val yellow" id="stat-top-niche">—</div>
+      <div class="stat-label">Топ ниша</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-last">—</div>
+      <div class="stat-label">Последний анализ</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters" id="filters">
+    <button class="filter-btn active" onclick="filterBy('all', this)">Все</button>
+    <button class="filter-btn" onclick="filterBy('ecom', this)">🛒 Интернет-магазин</button>
+    <button class="filter-btn" onclick="filterBy('cafe', this)">☕ Кафе</button>
+    <button class="filter-btn" onclick="filterBy('freelance', this)">💼 Фриланс</button>
+    <button class="filter-btn" onclick="filterBy('retail', this)">🏪 Розница</button>
+    <button class="filter-btn" onclick="filterBy('content', this)">🎬 Контент</button>
+  </div>
+
+  <!-- LIST -->
+  <div class="section-head">
+    <div class="section-title">История анализов</div>
+    <div class="section-count" id="list-count">0 записей</div>
+  </div>
+
+  <div id="list-container">
+    <div class="loading">
+      <div class="spinner"></div>
+      Загружаем историю…
+    </div>
+  </div>
+</main>
+
+<!-- DELETE CONFIRM -->
+<div class="del-confirm" id="del-confirm">
+  <div class="del-box">
+    <h3>Удалить анализ?</h3>
+    <p>Это действие нельзя отменить. Анализ будет удалён безвозвратно.</p>
+    <div class="del-btns">
+      <button class="del-cancel" onclick="closeDelConfirm()">Отмена</button>
+      <button class="del-ok" onclick="confirmDelete()">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ ───────────────────────────────────────────────────────
+const SUPA_URL  = 'https://ВАШ-ПРОЕКТ.supabase.co';
+const SUPA_ANON = 'eyJ...ВАШ_ANON_КЛЮЧ...';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_ANON);
+
+let allAnalyses = [];
+let pendingDeleteId = null;
+let currentFilter = 'all';
+
+const NICHE_ICONS = { ecom:'🛒', cafe:'☕', freelance:'💼', retail:'🏪', content:'🎬' };
+const NICHE_LABELS = { ecom:'Интернет-магазин', cafe:'Кафе / Ресторан', freelance:'Услуги / Фриланс', retail:'Розница', content:'Контент / Вирал' };
+
+// ── AUTH CHECK ────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = '/auth.html'; return; }
+  document.getElementById('user-email').textContent = session.user.email;
+  await loadAnalyses();
+})();
+
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = '/auth.html';
+}
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function loadAnalyses() {
+  const { data, error } = await sb
+    .from('analyses')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    document.getElementById('list-container').innerHTML = `<div class="loading" style="color:var(--a3)">Ошибка загрузки: ${error.message}</div>`;
+    return;
+  }
+  allAnalyses = data || [];
+  updateStats();
+  renderList(currentFilter);
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const total = allAnalyses.length;
+  const weekAgo = new Date(Date.now() - 7*24*60*60*1000);
+  const week = allAnalyses.filter(a => new Date(a.created_at) > weekAgo).length;
+
+  // Top niche
+  const nicheCounts = {};
+  allAnalyses.forEach(a => { nicheCounts[a.niche] = (nicheCounts[a.niche]||0)+1; });
+  const topNiche = Object.entries(nicheCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  // Last date
+  const last = allAnalyses[0] ? formatDate(allAnalyses[0].created_at) : '—';
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-week').textContent = week;
+  document.getElementById('stat-top-niche').textContent = topNiche ? (NICHE_ICONS[topNiche[0]]||'') : '—';
+  document.getElementById('stat-last').textContent = last;
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+function filterBy(niche, btn) {
+  currentFilter = niche;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList(niche);
+}
+
+// ── RENDER LIST ───────────────────────────────────────────────────────────────
+function renderList(filter) {
+  const items = filter === 'all' ? allAnalyses : allAnalyses.filter(a => a.niche === filter);
+  document.getElementById('list-count').textContent = `${items.length} ${plural(items.length, 'запись','записи','записей')}`;
+
+  if (!items.length) {
+    document.getElementById('list-container').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">${filter === 'all' ? 'Анализов пока нет' : 'В этой категории пусто'}</div>
+        <div class="empty-sub">Запусти первый анализ — он сохранится здесь автоматически</div>
+        <a class="empty-btn" href="/">✦ Создать анализ</a>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('list-container').innerHTML = `<div class="analyses-list">${items.map(a => renderCard(a)).join('')}</div>`;
+}
+
+function renderCard(a) {
+  const icon = NICHE_ICONS[a.niche] || '📊';
+  const nicheLabel = a.niche_label || NICHE_LABELS[a.niche] || a.niche;
+  const pillClass = `pill pill-${a.niche}`;
+  const date = formatDate(a.created_at);
+  const preview = (a.result_text||'').replace(/\*\*(.*?)\*\*/g,'$1').replace(/^#{1,4}\s*/gm,'').substring(0,120)+'…';
+
+  return `<div class="an-card" id="card-${a.id}">
+    <div class="an-card-head" onclick="toggleCard('${a.id}')">
+      <div class="an-icon">${icon}</div>
+      <div class="an-info">
+        <div class="an-title">${a.type_label || a.type}</div>
+        <div class="an-meta"><span class="${pillClass}">${nicheLabel}</span> &nbsp;${a.currency||'USD'} · ${a.region||'Global'}</div>
+      </div>
+      <div class="an-actions">
+        <div class="an-date">${date}</div>
+        <button class="an-del" onclick="event.stopPropagation();askDelete('${a.id}')" title="Удалить">✕</button>
+      </div>
+    </div>
+    <div class="an-body" id="body-${a.id}">
+      <div class="report-wrap">
+        <div class="report-top"></div>
+        <div class="report-scroll">${formatReport(a.result_text||'')}</div>
+        <div class="report-actions">
+          <button class="ract" onclick="copyReport('${a.id}')">📋 Копировать</button>
+        </div>
+      </div>
+      ${renderInputData(a.input_data)}
+    </div>
+  </div>`;
+}
+
+function renderInputData(inputData) {
+  if (!inputData || !Object.keys(inputData).length) return '';
+  const rows = Object.entries(inputData)
+    .filter(([,v]) => v && v !== '0' && v !== 'не указано')
+    .map(([k,v]) => `<div class="input-row"><div class="input-key">${k}</div><div class="input-val">${v}</div></div>`)
+    .join('');
+  return `<div class="input-section">
+    <div class="input-toggle" onclick="this.nextElementSibling.classList.toggle('open')">▸ Введённые данные</div>
+    <div class="input-data">${rows}</div>
+  </div>`;
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-'+id);
+  card.classList.toggle('expanded');
+}
+
+function copyReport(id) {
+  const a = allAnalyses.find(x => x.id === id);
+  if (!a) return;
+  navigator.clipboard.writeText(a.result_text || '').then(() => {
+    const btn = document.querySelector(`#card-${id} .ract`);
+    if (btn) { btn.textContent = '✓ Скопировано'; setTimeout(()=>btn.textContent='📋 Копировать',2000); }
+  });
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+function askDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('del-confirm').classList.add('visible');
+}
+function closeDelConfirm() {
+  pendingDeleteId = null;
+  document.getElementById('del-confirm').classList.remove('visible');
+}
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const { error } = await sb.from('analyses').delete().eq('id', pendingDeleteId);
+  closeDelConfirm();
+  if (!error) {
+    allAnalyses = allAnalyses.filter(a => a.id !== pendingDeleteId);
+    updateStats();
+    renderList(currentFilter);
+  }
+}
+
+// ── FORMAT REPORT ─────────────────────────────────────────────────────────────
+function formatReport(text) {
+  text = text.replace(/^#{1,4}\s*/gm,'').trim();
+  const icons = {'ОЦЕНКА':'📊','ОБЩАЯ':'📊','ФИНАНСОВ':'💰','МЕТРИК':'📈','РАБОТАЕТ':'✅','ПРОБЛЕМ':'⚠️','ДЕЙСТВИ':'🎯','РЕКОМЕНД':'💡','ПЛАН':'🗓️','ПРОГНОЗ':'🔮','СТРАТЕГ':'🚀','КЛИЕНТ':'🤝','ТРАФИК':'👥','МЕНЮ':'🍽️','АНАЛИЗ':'📊','ХУКИ':'🎣','КОНТЕНТ':'📱','ИДЕИ':'💡','РОСТ':'📈','ТРЕНДЫ':'🔥','МОНЕТИЗ':'💰','SEO':'🔍','АУДИТ':'🔎'};
+  function ico(t){const u=t.toUpperCase();for(const[k,v]of Object.entries(icons))if(u.includes(k))return v;return'◆';}
+  const parts = text.split(/\*\*(.*?)\*\*/g);
+  let html = '';
+  if (parts[0].trim()) html += `<div class="sbody"><p>${parts[0].trim()}</p></div>`;
+  for (let i=1; i<parts.length; i+=2) {
+    const title = parts[i].trim().replace(/^#+\s*/,'');
+    const body  = (parts[i+1]||'').trim().replace(/^#{1,4}\s*/gm,'');
+    if (!title) continue;
+    const lines = body.split('\n').filter(l=>l.trim());
+    const bhtml = lines.map(line => {
+      const t = line.trim().replace(/^#{1,4}\s*/,'');
+      if (!t) return '';
+      if (/^[–\-•]\s/.test(t)) {
+        const c = t.replace(/^[–\-•]\s*/,'');
+        const fmt = c.replace(/^([^:：]+[:：])/,'<span class="kw">$1</span>');
+        return `<div class="brow"><span class="barr">→</span><span class="btxt">${fmt}</span></div>`;
+      }
+      return `<p>${t}</p>`;
+    }).join('');
+    html += `<div class="rsec"><div class="shead"><span class="sico">${ico(title)}</span><span class="sname">${title}</span></div><div class="sbody">${bhtml||'<p>—</p>'}</div></div>`;
+  }
+  return html || `<div class="sbody"><p>${text}</p></div>`;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function formatDate(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60)   return 'только что';
+  if (diff < 3600) return Math.floor(diff/60)+' мин назад';
+  if (diff < 86400) return Math.floor(diff/3600)+' ч назад';
+  if (diff < 172800) return 'вчера';
+  return d.toLocaleDateString('ru-RU', {day:'numeric',month:'short'});
+}
+function plural(n, one, two, five) {
+  const m = n % 100;
+  if (m >= 11 && m <= 19) return `${n} ${five}`;
+  const m2 = n % 10;
+  if (m2 === 1) return `${n} ${one}`;
+  if (m2 >= 2 && m2 <= 4) return `${n} ${two}`;
+  return `${n} ${five}`;
+}
+</script>
+</body>
+</html>
