@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataMind — Вход</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.14);--a1:#6c8fff;--a2:#00e5c3;--a3:#ff5f7e;--ag1:rgba(108,143,255,0.1);--t1:#f0f0f8;--t2:#a0a0c0;--t3:#60607a;--t4:#35354a;--r:14px;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -92,18 +92,32 @@ input::placeholder{color:var(--t4);}
 <a class="back-link" href="/"><span>←</span> Вернуться на главную</a>
 
 <script>
-// ── ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ ───────────────────────────────────────────────────────
-const SUPA_URL  = 'https://ВАШ-ПРОЕКТ.supabase.co';
-const SUPA_ANON = 'eyJ...ВАШ_ANON_КЛЮЧ...';
-// ─────────────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// ВСТАВЬ СВОИ КЛЮЧИ ЗДЕСЬ (только латиница, без пробелов)
+const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
+// ══════════════════════════════════════════════════════
 
-const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_ANON);
+// Проверка загрузки SDK
+if (typeof window.supabase === 'undefined') {
+  document.body.innerHTML = '<div style="color:#ff5f7e;font-family:monospace;padding:40px">Ошибка: Supabase SDK не загрузился. Проверь интернет-соединение.</div>';
+  throw new Error('Supabase SDK not loaded');
+}
+const { createClient } = window.supabase;
+
+// Проверка ключей
+if (SUPA_ANON.includes('ВСТАВЬ') || SUPA_URL.includes('ВАШ')) {
+  document.body.innerHTML = '<div style="color:#ff5f7e;font-family:monospace;padding:40px">Ошибка: замени SUPA_URL и SUPA_ANON на реальные ключи Supabase в файле auth.html</div>';
+  throw new Error('Supabase keys not configured');
+}
+
+// Encode URL to ensure ASCII safety
+const sb = createClient(encodeURI(SUPA_URL), SUPA_ANON.trim());
 
 // Если уже залогинен — сразу в дашборд
 sb.auth.getSession().then(({ data }) => {
   if (data.session) window.location.href = '/dashboard.html';
-});
+}).catch(e => console.warn('Session check failed:', e));
 
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
