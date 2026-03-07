@@ -1010,42 +1010,57 @@ F.content_strategy={
 };
 
 
-// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
-// ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ:
+// ── SUPABASE AUTH ────────────────────────────────────────────────────────────
 const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
 
-const { createClient: sbCreate } = window.supabase || {};
-const sb = sbCreate(SUPA_URL, SUPA_ANON);
+let sb = null;
 let currentUser = null;
 let currentSession = null;
-
-(async () => {e
-  const { data: { session } } = await sb.auth.getSession();
-  currentSession = session;
-  currentUser = session?.user || null;
-  renderAuthArea();
-  // Listen for auth changes
-  sb.auth.onAuthStateChange((_event, session) => {
-    currentSession = session;
-    currentUser = session?.user || null;
-    renderAuthArea();
-  });
-})();
 
 function renderAuthArea() {
   const area = document.getElementById('auth-area');
   if (!area) return;
   if (currentUser) {
-    area.innerHTML = `
-      <a class="auth-btn" href="/dashboard.html">📊 Кабинет</a>`;
+    area.innerHTML = `<a class="auth-btn" href="/dashboard.html">📊 Кабинет</a>`;
   } else {
-    area.innerHTML = `
-      <a class="auth-btn primary" href="/auth.html">Войти</a>`;
+    area.innerHTML = `<a class="auth-btn primary" href="/auth.html">Войти</a>`;
   }
 }
 
-// ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
+// Init Supabase only after DOM + SDK are ready
+function initSupabase() {
+  if (!window.supabase || !window.supabase.createClient) {
+    console.warn('[DM] Supabase SDK not ready, retrying...');
+    setTimeout(initSupabase, 200);
+    return;
+  }
+  sb = window.supabase.createClient(SUPA_URL, SUPA_ANON.trim());
+
+  sb.auth.getSession().then(({ data: { session } }) => {
+    currentSession = session;
+    currentUser = session?.user || null;
+    renderAuthArea();
+  }).catch(e => {
+    console.warn('[DM] getSession failed:', e);
+    renderAuthArea();
+  });
+
+  sb.auth.onAuthStateChange((_event, session) => {
+    currentSession = session;
+    currentUser = session?.user || null;
+    renderAuthArea();
+  });
+}
+
+// Start init when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSupabase);
+} else {
+  initSupabase();
+}
+
+
 async function saveAnalysisToCloud(resultText) {
   console.log('[DM] saveAnalysisToCloud called');
   console.log('[DM] currentSession:', currentSession ? 'EXISTS' : 'NULL');
