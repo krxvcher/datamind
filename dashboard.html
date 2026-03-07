@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DataMind — Личный кабинет</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--s4:#1f1f28;--b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.14);--a1:#6c8fff;--a2:#00e5c3;--a3:#ff5f7e;--a4:#f5a623;--ag1:rgba(108,143,255,0.1);--ag2:rgba(0,229,195,0.08);--t1:#f0f0f8;--t2:#a0a0c0;--t3:#60607a;--t4:#35354a;--r:14px;--r2:10px;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -209,12 +209,12 @@ main{max-width:960px;margin:0 auto;padding:36px 24px 80px;position:relative;z-in
 
 <script>
 // ── ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ ───────────────────────────────────────────────────────
-const SUPA_URL  = 'https://ВАШ-ПРОЕКТ.supabase.co';
-const SUPA_ANON = 'eyJ...ВАШ_ANON_КЛЮЧ...';
+const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
 // ─────────────────────────────────────────────────────────────────────────────
 
-const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_ANON);
+const { createClient } = window.supabase;
+const sb = createClient(encodeURI(SUPA_URL), SUPA_ANON.trim());
 
 let allAnalyses = [];
 let pendingDeleteId = null;
