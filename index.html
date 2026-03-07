@@ -966,15 +966,18 @@ function renderAuthArea() {
 
 // ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
 async function saveAnalysisToCloud(resultText) {
-  if (!currentSession) return; // not logged in — skip silently
+  if (!currentSession) return;
   try {
+    const token = currentSession.access_token;
+    // Validate token is ASCII-safe before putting in header
+    const isAscii = /^[ -]*$/.test(token);
+    const headers = { 'Content-Type': 'application/json' };
+    // Pass token in body to avoid ISO-8859-1 header restriction
     const r = await fetch('/api/save-analysis', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentSession.access_token}`
-      },
+      headers,
       body: JSON.stringify({
+        token,
         niche: cNiche,
         niche_label: nicheLabel,
         type: cType,
