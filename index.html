@@ -16,7 +16,7 @@
   --a1:#7b9cff;--a2:#35e8c3;--a3:#ff6584;--a4:#f5a623;
   --ag1:rgba(123,156,255,0.1);--ag2:rgba(53,232,195,0.08);
   --gold:#d4a843;--gold2:#e8c56a;--gdim:rgba(212,168,67,0.1);--gborder:rgba(212,168,67,0.22);
-  --t1:#ffffff;--t2:#c2c2d4;--t3:#787890;--t4:#4a4a62;
+  --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
   --r:14px;--r2:10px;--r3:7px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -119,6 +119,7 @@ header{
 /* ── MAIN ────────────────────────────────────────────────────────── */
 main{position:relative;z-index:1;}
 .wrap{max-width:860px;margin:0 auto;padding:0 24px 80px;}
+.form-wrap{max-width:640px;margin:0 auto;}
 
 /* ── HERO ────────────────────────────────────────────────────────── */
 .hero{text-align:center;padding:90px 24px 64px;}
@@ -135,7 +136,7 @@ main{position:relative;z-index:1;}
 h1{
   font-family:'Syne',sans-serif;
   font-size:clamp(40px,6.5vw,70px);
-  font-weight:800;line-height:1.0;letter-spacing:-3px;
+  font-weight:800;line-height:1.0;letter-spacing:-.5px;
   margin-bottom:22px;color:var(--t1);
   animation:fadeUp .55s .1s ease both;
 }
@@ -143,6 +144,13 @@ h1 em{
   font-style:normal;
   color:var(--gold2);
   background:none;-webkit-text-fill-color:var(--gold2);
+  font-variant-numeric:tabular-nums;
+}
+/* Span for the number "30" rendered in mono */
+h1 em .num{
+  font-family:'DM Mono',monospace;
+  font-weight:500;
+  letter-spacing:-.5px;
 }
 .hero-sub{
   font-size:17px;font-weight:300;color:var(--t2);line-height:1.75;
@@ -221,9 +229,9 @@ h1 em{
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px 28px 0;}
 .fl{display:flex;flex-direction:column;gap:6px;}
 .fl.full{grid-column:1/-1;}
-.fb{display:flex;gap:8px;}
-label{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;
-  color:var(--t3);letter-spacing:.8px;text-transform:uppercase;}
+.fb{display:flex;flex-direction:column;gap:0;}
+label{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  color:var(--t2);letter-spacing:.4px;text-transform:uppercase;}
 input,select,textarea{background:var(--s2);border:1px solid var(--b2);
   border-radius:var(--r3);padding:10px 14px;color:var(--t1);
   font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
@@ -253,10 +261,11 @@ textarea{resize:vertical;min-height:80px;}
 .mv.neutral{color:var(--gold2);}
 /* RUN BUTTON */
 .sbtn{
-  width:100%;padding:15px;border-radius:var(--r2);border:none;margin:20px 0 0;
+  width:calc(100% - 56px);margin:16px 28px 28px;padding:14px;
+  border-radius:var(--r2);border:none;
   background:linear-gradient(135deg,var(--gold2) 0%,var(--gold) 100%);
   color:#07070b;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
-  cursor:pointer;transition:all .22s;letter-spacing:.05px;
+  cursor:pointer;transition:all .22s;letter-spacing:.05px;display:block;
   box-shadow:0 8px 32px rgba(212,168,67,.24);
 }
 .sbtn:hover{transform:translateY(-2px);box-shadow:0 14px 44px rgba(212,168,67,.34);}
@@ -317,12 +326,13 @@ textarea{resize:vertical;min-height:80px;}
 
 /* ── HOW IT WORKS ────────────────────────────────────────────────── */
 .how{text-align:center;padding:80px 24px;position:relative;}
+.how-inner{max-width:860px;margin:0 auto;}
 .how::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--b2) 20%,var(--b2) 80%,transparent);}
 .how h2{font-family:'Syne',sans-serif;font-size:clamp(28px,4.5vw,44px);
   font-weight:800;letter-spacing:-1.8px;margin-bottom:10px;color:var(--t1);}
 .how-s{font-size:15px;color:var(--t3);margin-bottom:52px;font-weight:300;}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;position:relative;z-index:1;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;position:relative;z-index:1;max-width:860px;margin:0 auto;}
 .stc{background:var(--s1);border:1px solid var(--b1);border-radius:16px;
   padding:28px 22px;text-align:left;transition:all .22s;
   position:relative;overflow:hidden;}
@@ -331,8 +341,8 @@ textarea{resize:vertical;min-height:80px;}
 .stc:hover{border-color:var(--gborder);transform:translateY(-5px);
   box-shadow:0 20px 52px rgba(0,0,0,.5);}
 .stc:hover::after{opacity:1;}
-.stn{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;
-  color:var(--b2);margin-bottom:18px;letter-spacing:-3px;line-height:1;}
+.stn{font-family:'DM Mono',monospace;font-size:40px;font-weight:400;
+  color:var(--b2);margin-bottom:18px;letter-spacing:-.5px;line-height:1;}
 .stc h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;
   color:var(--t1);margin-bottom:8px;}
 .stc p{font-size:13px;color:var(--t2);line-height:1.7;font-weight:300;}
@@ -487,7 +497,7 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
 <main>
   <div class="hero">
     <div class="eyebrow">AI-аналитика для бизнеса</div>
-    <h1>Умный анализ<br><em>за 30 секунд</em></h1>
+    <h1>Умный анализ<br><em>за <span class="num">30</span> секунд</em></h1>
     <p class="hero-sub">Введите данные — получите выводы, прогнозы и план действий. Экспорт в PDF и Excel.</p>
     <div class="step-pills" id="spills">
       <div class="sp active" id="sp1"><div class="n">1</div>Тип бизнеса</div>
@@ -513,6 +523,7 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
   </div>
 
   <div class="sw">
+  <div class="form-wrap">
     <div class="form-card" id="form-card">
       <div class="fh">
         <div class="fh-top">
@@ -527,8 +538,9 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
       </div>
     </div>
   </div>
+  </div>
 
-  <div class="loading" id="loading">
+  <div class="loading"id="loading">
     <div class="loader"></div>
     <div class="lt">AI-аналитик обрабатывает данные</div>
     <div class="ls" id="lstep">инициализация...</div>
