@@ -386,6 +386,104 @@ textarea{resize:vertical;min-height:68px;line-height:1.5;}
 </main>
 
 <script>
+// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
+const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
+
+let sb = null;
+let currentUser = null;
+let currentSession = null;
+
+function initSupabase() {
+  if (!window.supabase) { console.error('[DM] Supabase SDK not loaded'); return false; }
+  if (SUPA_ANON.includes('ВСТАВЬ') || !SUPA_ANON.startsWith('eyJ')) {
+    console.error('[DM] SUPA_ANON key not set in index.html!'); return false;
+  }
+  try {
+    const { createClient } = window.supabase;
+    sb = createClient(SUPA_URL, SUPA_ANON);
+    return true;
+  } catch(e) { console.error('[DM] Supabase init error:', e); return false; }
+}
+
+async function initAuth() {
+  if (!initSupabase()) return;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    currentSession = session;
+    currentUser = session?.user || null;
+    renderAuthArea();
+    updateUI();
+    sb.auth.onAuthStateChange((_event, session) => {
+      currentSession = session;
+      currentUser = session?.user || null;
+      renderAuthArea();
+      updateUI();
+    });
+  } catch(e) { console.error('[DM] Auth init error:', e); }
+}
+
+// Init after DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAuth);
+} else {
+  initAuth();
+}
+
+function renderAuthArea() {
+  const area = document.getElementById('auth-area');
+  if (!area) return;
+  if (currentUser) {
+    area.innerHTML = `<a class="auth-btn" href="/dashboard.html">📊 Кабинет</a>`;
+  } else {
+    area.innerHTML = `<a class="auth-btn primary" href="/auth.html">Войти</a>`;
+  }
+}
+
+// ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
+async function saveAnalysisToCloud(resultText) {
+  if (!sb || !currentSession) {
+    console.warn('[DM] Save skipped — sb:', !!sb, 'session:', !!currentSession);
+    return;
+  }
+  try {
+    const token = currentSession.access_token;
+    console.log('[DM] Saving analysis, token length:', token?.length);
+
+    const r = await fetch('/api/save-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token,
+        niche: cNiche,
+        niche_label: nicheLabel,
+        type: cType,
+        type_label: typeLabel,
+        currency: cCode,
+        region: cRegion,
+        input_data: inputData,
+        result_text: resultText
+      })
+    });
+
+    const data = await r.json();
+    console.log('[DM] Save response:', data);
+
+    if (data.success) {
+      const badge = document.getElementById('save-badge');
+      if (badge) {
+        badge.classList.add('visible');
+        setTimeout(() => badge.classList.remove('visible'), 3000);
+      }
+    } else {
+      console.error('[DM] Save error:', data.error);
+    }
+  } catch(e) {
+    console.error('[DM] Save exception:', e.message);
+  }
+}
+
+
 // ── CURRENCY & REGION ─────────────────────────────────────────────────────────
 let cSym='$', cCode='USD', cRegion='международный рынок';
 const C=()=>cSym;
@@ -444,7 +542,7 @@ function getN(){return fpH?(loadA()[fpH]||0):0;}
 function incN(){if(!fpH)return;const d=loadA();d[fpH]=(d[fpH]||0)+1;saveA(d);}
 function overLimit(){
   // Dev account — unlimited
-  const DEV_EMAIL = 'dzenwaycom@gmail.com';
+  const DEV_EMAIL = 'ВСТАВЬ_СВОЙ_EMAIL';
   if(currentUser && currentUser.email === DEV_EMAIL) return false;
   return getN()>=FL;
 }
@@ -935,87 +1033,6 @@ F.content_strategy={
   getData:()=>({project:v('f_project'),product:v('f_product'),audience:v('f_audience'),budget:v('f_budget'),team:v('f_team'),platforms:v('f_platforms'),new_platforms:v('f_new_platforms'),problem:v('f_problem'),positioning:v('f_positioning'),competitors:v('f_competitors'),goal:v('f_goal')}),
   metrics:d=>[{val:'AI',lbl:'Стратегия',cls:'neutral'},{val:'📱',lbl:'Кросс-платформа',cls:'up'},{val:'↑',lbl:'Рост',cls:'up'}]
 };
-
-
-// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
-// ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ:
-const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
-const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1emZ5a2JtcGhpY3VkeXF2YWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MzQ5ODUsImV4cCI6MjA4ODQxMDk4NX0.oWI_2XcyVHLbTELHcLizT4hQ2eQgTMcn7p4YMfUQ4jU';
-
-const { createClient: sbCreate } = window.supabase || {};
-const sb = sbCreate(SUPA_URL, SUPA_ANON);
-let currentUser = null;
-let currentSession = null;
-
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  currentSession = session;
-  currentUser = session?.user || null;
-  renderAuthArea();
-  // Listen for auth changes
-  sb.auth.onAuthStateChange((_event, session) => {
-    currentSession = session;
-    currentUser = session?.user || null;
-    renderAuthArea();
-  });
-})();
-
-function renderAuthArea() {
-  const area = document.getElementById('auth-area');
-  if (!area) return;
-  if (currentUser) {
-    area.innerHTML = `
-      <a class="auth-btn" href="/dashboard.html">📊 Кабинет</a>`;
-  } else {
-    area.innerHTML = `
-      <a class="auth-btn primary" href="/auth.html">Войти</a>`;
-  }
-}
-
-// ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
-async function saveAnalysisToCloud(resultText) {
-  console.log('[DM] saveAnalysisToCloud called');
-  console.log('[DM] currentSession:', currentSession ? 'EXISTS' : 'NULL');
-  console.log('[DM] window.supabase:', window.supabase ? 'LOADED' : 'NOT LOADED');
-  if (!currentSession) { console.warn('[DM] No session — not logged in'); return; }
-  if (!window.supabase) { console.warn('[DM] Supabase SDK not loaded'); return; }
-
-  try {
-    const token = currentSession.access_token;
-    console.log('[DM] Token length:', token ? token.length : 0);
-    console.log('[DM] Sending to /api/save-analysis...');
-
-    const r = await fetch('/api/save-analysis', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token,
-        niche: cNiche,
-        niche_label: nicheLabel,
-        type: cType,
-        type_label: typeLabel,
-        currency: cCode,
-        region: cRegion,
-        input_data: inputData,
-        result_text: resultText
-      })
-    });
-
-    console.log('[DM] Response status:', r.status);
-    const data = await r.json();
-    console.log('[DM] Response data:', data);
-
-    if (data.success) {
-      console.log('[DM] Saved! ID:', data.id);
-      const badge = document.getElementById('save-badge');
-      if (badge) { badge.classList.add('visible'); setTimeout(() => badge.classList.remove('visible'), 3000); }
-    } else {
-      console.error('[DM] Save error:', data.error);
-    }
-  } catch(e) {
-    console.error('[DM] Fetch exception:', e.message, e);
-  }
-}
 
 </script>
 </body>
