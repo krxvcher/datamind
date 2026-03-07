@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://openfpcdn.io/fingerprintjs/v4/iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--s4:#1f1f28;
@@ -88,6 +89,12 @@ h1 em{font-style:normal;background:linear-gradient(120deg,var(--a1),var(--a2));-
 /* ANALYSIS TYPES */
 .atypes{display:none;justify-content:center;flex-wrap:wrap;gap:7px;margin-bottom:28px;animation:fadeUp 0.2s ease;}
 .atypes.visible{display:flex;}
+.auth-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--t2);font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;text-decoration:none;display:flex;align-items:center;gap:5px;}
+.auth-btn:hover{border-color:var(--a1);color:var(--a1);}
+.auth-btn.primary{background:linear-gradient(135deg,var(--a1),#5a4de8);border:none;color:#fff;}
+.auth-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,143,255,0.3);}
+.save-badge{display:none;font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(0,229,195,0.1);border:1px solid rgba(0,229,195,0.2);color:var(--a2);}
+.save-badge.visible{display:inline-flex;align-items:center;gap:5px;}
 .tc{padding:7px 16px;border-radius:20px;border:1px solid var(--b2);background:transparent;color:var(--t3);cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;transition:all 0.15s;}
 .tc:hover{border-color:var(--a2);color:var(--t1);}
 .tc.active{border-color:var(--a2);background:var(--ag2);color:var(--a2);}
@@ -236,6 +243,7 @@ textarea{resize:vertical;min-height:68px;line-height:1.5;}
     <div class="logo-text">Data<span>Mind</span></div>
   </div>
   <div class="header-right">
+    <div id="auth-area"></div>
     <div class="sel-wrap" id="cw">
       <div class="sel-btn" onclick="toggleDrop('cw')">
         <span class="sel-lbl">Валюта</span>
@@ -333,6 +341,7 @@ textarea{resize:vertical;min-height:68px;line-height:1.5;}
     <div class="rc" id="rc">
       <div class="rtbar">
         <div class="rtitle"><div class="rdot"></div><div class="rlbl">Результаты анализа</div></div>
+          <div class="save-badge" id="save-badge">✓ Сохранено</div>
         <div class="ract">
           <button class="ab copy" onclick="doCopy()">📋 Копировать</button>
           <button class="ab excel" onclick="doExcel()">📗 Excel</button>
@@ -590,6 +599,7 @@ async function runAnalysis(){
     if(d.error){rawText='Ошибка API: '+d.error.message;renderRes(rawText,[]);return;}
     rawText=d.content?.map(c=>c.text||'').join('')||'Не удалось получить анализ.';
     incN();updateUI();setStep(4);
+    saveAnalysisToCloud(rawText);
     renderRes(rawText,f.metrics?f.metrics(inputData):[]);
   }catch(e){clearInterval(iv);rawText='Ошибка: '+e.message;renderRes(rawText,[]);}
 }
@@ -918,7 +928,71 @@ F.content_strategy={
   metrics:d=>[{val:'AI',lbl:'Стратегия',cls:'neutral'},{val:'📱',lbl:'Кросс-платформа',cls:'up'},{val:'↑',lbl:'Рост',cls:'up'}]
 };
 
->
+
+// ── SUPABASE AUTH ─────────────────────────────────────────────────────────────
+// ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ:
+const SUPA_URL  = 'https://ВАШ-ПРОЕКТ.supabase.co';
+const SUPA_ANON = 'eyJ...ВАШ_ANON_КЛЮЧ...';
+
+const { createClient: sbCreate } = supabase;
+const sb = sbCreate(SUPA_URL, SUPA_ANON);
+let currentUser = null;
+let currentSession = null;
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  currentSession = session;
+  currentUser = session?.user || null;
+  renderAuthArea();
+  // Listen for auth changes
+  sb.auth.onAuthStateChange((_event, session) => {
+    currentSession = session;
+    currentUser = session?.user || null;
+    renderAuthArea();
+  });
+})();
+
+function renderAuthArea() {
+  const area = document.getElementById('auth-area');
+  if (!area) return;
+  if (currentUser) {
+    area.innerHTML = `
+      <a class="auth-btn" href="/dashboard.html">📊 Кабинет</a>`;
+  } else {
+    area.innerHTML = `
+      <a class="auth-btn primary" href="/auth.html">Войти</a>`;
+  }
+}
+
+// ── SAVE ANALYSIS TO SUPABASE ─────────────────────────────────────────────────
+async function saveAnalysisToCloud(resultText) {
+  if (!currentSession) return; // not logged in — skip silently
+  try {
+    const r = await fetch('/api/save-analysis', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentSession.access_token}`
+      },
+      body: JSON.stringify({
+        niche: cNiche,
+        niche_label: nicheLabel,
+        type: cType,
+        type_label: typeLabel,
+        currency: cCode,
+        region: cRegion,
+        input_data: inputData,
+        result_text: resultText
+      })
+    });
+    const data = await r.json();
+    if (data.success) {
+      const badge = document.getElementById('save-badge');
+      if (badge) { badge.classList.add('visible'); setTimeout(() => badge.classList.remove('visible'), 3000); }
+    }
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
 </script>
 </body>
 </html
