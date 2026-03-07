@@ -442,11 +442,19 @@ function loadA(){const src=[];
 }
 function getN(){return fpH?(loadA()[fpH]||0):0;}
 function incN(){if(!fpH)return;const d=loadA();d[fpH]=(d[fpH]||0)+1;saveA(d);}
-function overLimit(){return getN()>=FL;}
+function overLimit(){
+  // Dev account — unlimited
+  const DEV_EMAIL = 'dzenwaycom@gmail.com';
+  if(currentUser && currentUser.email === DEV_EMAIL) return false;
+  return getN()>=FL;
+}
 function updateUI(){
-  const n=getN(),rem=Math.max(0,FL-n);
+  // Hide limit indicator for logged in users
   const ind=document.getElementById('uind'),pips=document.getElementById('upips'),txt=document.getElementById('utxt');
   if(!ind)return;
+  const DEV_EMAIL2 = 'ВСТАВЬ_СВОЙ_EMAIL';
+  if(currentUser && currentUser.email === DEV_EMAIL2){ind.style.display='none';return;}
+  const n=getN(),rem=Math.max(0,FL-n);
   ind.style.display='flex';
   pips.innerHTML=Array.from({length:FL},(_,i)=>{const u=i<n,il=i===FL-1&&u;return`<div class="pip ${u?(il?'last':'on'):''}"></div>`;}).join('');
   txt.textContent=rem===0?'Лимит исчерпан':`${rem} из ${FL} бесплатно`;
