@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataMind — Вход</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060608;--s1:#0c0c10;--s2:#111116;--s3:#18181f;--b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.14);--a1:#6c8fff;--a2:#00e5c3;--a3:#ff5f7e;--ag1:rgba(108,143,255,0.1);--t1:#f0f0f8;--t2:#a0a0c0;--t3:#60607a;--t4:#35354a;--r:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(108,143,255,0.07) 0%,transparent 60%);}
+.card{position:relative;z-index:1;width:100%;max-width:420px;background:var(--s1);border:1px solid var(--b2);border-radius:20px;overflow:hidden;box-shadow:0 0 80px rgba(108,143,255,0.08);animation:fadeUp 0.3s ease;}
+.card-top{height:2px;background:linear-gradient(90deg,var(--a1),var(--a2));}
+.card-inner{padding:36px 32px 32px;}
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:28px;justify-content:center;}
+.logo-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:-0.3px;}
+.logo-text span{color:var(--a1);}
+.tabs{display:flex;gap:4px;background:var(--s2);border-radius:10px;padding:4px;margin-bottom:28px;}
+.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:var(--t3);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.tab.active{background:var(--s3);color:var(--t1);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--t3);letter-spacing:0.8px;text-transform:uppercase;}
+input{background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:11px 14px;color:var(--t1);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:all 0.15s;width:100%;}
+input:focus{border-color:var(--a1);box-shadow:0 0 0 3px rgba(108,143,255,0.1);}
+input::placeholder{color:var(--t4);}
+.submit-btn{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--a1),#5a4de8);color:#fff;font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;margin-top:6px;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(108,143,255,0.3);}
+.submit-btn:disabled{opacity:0.5;transform:none;cursor:not-allowed;}
+.divider{height:1px;background:var(--b1);margin:20px 0;}
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-top:10px;display:none;}
+.msg.error{background:rgba(255,95,126,0.1);border:1px solid rgba(255,95,126,0.2);color:var(--a3);}
+.msg.success{background:rgba(0,229,195,0.08);border:1px solid rgba(0,229,195,0.2);color:var(--a2);}
+.msg.visible{display:block;}
+.back-link{display:block;text-align:center;margin-top:20px;font-size:13px;color:var(--t3);text-decoration:none;transition:color 0.15s;}
+.back-link:hover{color:var(--t1);}
+.back-link span{color:var(--a1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-top"></div>
+  <div class="card-inner">
+    <div class="logo">
+      <div class="logo-mark">D</div>
+      <div class="logo-text">Data<span>Mind</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Войти</button>
+      <button class="tab" onclick="switchTab('register')">Регистрация</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Пароль</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="submit-btn" onclick="doLogin()">Войти →</button>
+      <div class="msg" id="login-msg"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="form-register" style="display:none">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Пароль</label>
+        <input type="password" id="reg-pass" placeholder="Минимум 8 символов" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>Повторите пароль</label>
+        <input type="password" id="reg-pass2" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="submit-btn" onclick="doRegister()">Создать аккаунт →</button>
+      <div class="msg" id="reg-msg"></div>
+    </div>
+
+  </div>
+</div>
+<a class="back-link" href="/"><span>←</span> Вернуться на главную</a>
+
+<script>
+// ── ЗАМЕНИ ЭТИ ЗНАЧЕНИЯ ───────────────────────────────────────────────────────
+const SUPA_URL  = 'https://ВАШ-ПРОЕКТ.supabase.co';
+const SUPA_ANON = 'eyJ...ВАШ_ANON_КЛЮЧ...';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_ANON);
+
+// Если уже залогинен — сразу в дашборд
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) window.location.href = '/dashboard.html';
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = `msg ${type} visible`;
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) return showMsg('login-msg', 'Заполни все поля', 'error');
+  const btn = document.querySelector('#form-login .submit-btn');
+  btn.disabled = true; btn.textContent = 'Входим…';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Войти →';
+    showMsg('login-msg', error.message === 'Invalid login credentials' ? 'Неверный email или пароль' : error.message, 'error');
+  } else {
+    window.location.href = '/dashboard.html';
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  if (!email || !pass) return showMsg('reg-msg', 'Заполни все поля', 'error');
+  if (pass.length < 8)  return showMsg('reg-msg', 'Пароль минимум 8 символов', 'error');
+  if (pass !== pass2)   return showMsg('reg-msg', 'Пароли не совпадают', 'error');
+  const btn = document.querySelector('#form-register .submit-btn');
+  btn.disabled = true; btn.textContent = 'Создаём…';
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  if (error) {
+    btn.disabled = false; btn.textContent = 'Создать аккаунт →';
+    showMsg('reg-msg', error.message, 'error');
+  } else {
+    showMsg('reg-msg', '✓ Аккаунт создан! Проверь почту для подтверждения, затем войди.', 'success');
+    btn.disabled = false; btn.textContent = 'Создать аккаунт →';
+  }
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('form-login').style.display !== 'none') doLogin();
+  else doRegister();
+});
+</script>
+</body>
+</html>
