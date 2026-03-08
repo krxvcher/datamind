@@ -134,8 +134,8 @@ header{
 .auth-btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(212,168,67,.32);}
 
 /* usage indicator */
-#uind{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;
-  border:1px solid var(--b2);background:var(--s2);}
+#uind{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:8px;
+  border:1px solid var(--b2);background:var(--s2);max-width:72px;flex-shrink:0;}
 .pips{display:flex;gap:3px;}
 .pip{width:6px;height:6px;border-radius:50%;background:var(--b2);transition:all .2s;}
 .pip.on{background:var(--gold2);box-shadow:0 0 7px rgba(212,168,67,.5);}
@@ -486,6 +486,9 @@ footer{
   .logo-text{font-size:15px;}
   .header-right{gap:5px;}
   .header-nav-link{display:none;}
+  #uind{padding:3px 6px;gap:4px;max-width:60px;}
+  .usage-txt,#utxt{font-size:9px;}
+  .pip{width:5px;height:5px;}
 
   /* Скрыть лейбл "Валюта" / "Регион" — оставить только значение */
   .sel-lbl{display:none;}
@@ -846,7 +849,7 @@ function updateUI(){
   const n=getN(),rem=Math.max(0,FL-n);
   ind.style.display='flex';
   pips.innerHTML=Array.from({length:FL},(_,i)=>{const u=i<n,il=i===FL-1&&u;return`<div class="pip ${u?(il?'last':'on'):''}"></div>`;}).join('');
-  txt.textContent=rem===0?'Лимит исчерпан':`${rem} из ${FL} бесплатно`;
+  txt.textContent=rem===0?'Лимит':`${rem}/${FL}`;
   txt.style.color=rem===0?'var(--a3)':rem===1?'var(--a4)':'';
 }
 function showPW(){document.getElementById('pwo').classList.add('visible');document.body.style.overflow='hidden';}
