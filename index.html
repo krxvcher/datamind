@@ -65,6 +65,13 @@ header{
 .logo-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
   letter-spacing:-.2px;color:var(--t1);}
 .logo-text span{color:var(--gold2);}
+.header-nav-link{
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  color:var(--t3);text-decoration:none;letter-spacing:.3px;
+  padding:5px 10px;border-radius:7px;border:1px solid transparent;
+  transition:all .15s;white-space:nowrap;
+}
+.header-nav-link:hover{color:var(--gold2);border-color:var(--gborder);background:var(--gdim);}
 .header-right{display:flex;align-items:center;gap:7px;}
 
 /* header dropdowns */
@@ -440,6 +447,7 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
   header{padding:0 12px;height:52px;gap:6px;}
   .logo-text{font-size:15px;}
   .header-right{gap:5px;}
+  .header-nav-link{display:none;}
 
   /* Скрыть лейбл "Валюта" / "Регион" — оставить только значение */
   .sel-lbl{display:none;}
@@ -529,6 +537,7 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
     <div class="logo-text">Data<span>Mind</span></div>
   </a>
   <div class="header-right">
+    <a href="/pricing.html" class="header-nav-link">Цены</a>
     <div id="auth-area"></div>
     <div class="sel-wrap" id="cw">
       <div class="sel-btn" onclick="toggleDrop('cw')">
@@ -720,6 +729,8 @@ footer{border-top:1px solid var(--b1);padding:22px 40px;
   <div class="ft-links">
     <a href="/">Главная</a>
     <a href="/dashboard.html">Кабинет</a>
+    <a href="/pricing.html">Цены</a>
+    <a href="/terms.html">Условия</a>
     <a href="/auth.html">Войти</a>
   </div>
 </footer>
