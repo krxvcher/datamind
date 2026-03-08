@@ -15,7 +15,7 @@
       --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
       --r:14px;--r2:10px;
     }
-    html{scroll-behavior:smooth;}
+    html{font-size:110%;scroll-behavior:smooth;}
     body{
       background:var(--bg);color:var(--t2);
       font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;
@@ -36,14 +36,17 @@
     }
     .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
 .logo-mark{
-  width:26px;height:26px;border-radius:7px;
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
   background:linear-gradient(135deg,var(--gold2),var(--gold));
   display:flex;align-items:center;justify-content:center;
-  font-family:'DM Mono',monospace;font-size:13px;font-weight:500;
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;
   color:#07070b;letter-spacing:-0.5px;
-  box-shadow:0 0 16px rgba(212,168,67,.28);
+  box-shadow:0 0 20px rgba(212,168,67,.35);
 }
-    .logo-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.2px;color:var(--t1);}
+    .logo-text{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+  letter-spacing:-.3px;color:#ffffff;
+}
     .logo-text span{color:var(--gold2);}
     .header-back{
       font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);
@@ -282,23 +285,33 @@
 
     /* ── FOOTER ── */
     footer{
-      border-top:1px solid var(--b1);padding:22px 40px;
-      display:flex;align-items:center;justify-content:space-between;
-      position:relative;z-index:1;flex-wrap:wrap;gap:12px;
-    }
+  border-top:1px solid var(--b2);padding:26px 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;flex-wrap:wrap;gap:14px;
+}
     .ft-logo{display:flex;align-items:center;gap:8px;}
 .ft-logo-mark{
-  width:20px;height:20px;border-radius:5px;
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;
   background:linear-gradient(135deg,var(--gold2),var(--gold));
   display:flex;align-items:center;justify-content:center;
-  font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
   color:#07070b;letter-spacing:-0.5px;
+  box-shadow:0 0 12px rgba(212,168,67,.25);
 }
-    .ft-logo-txt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);}
+    .ft-logo-txt{
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  color:#ffffff;letter-spacing:-.2px;
+}
     .ft-logo-txt span{color:var(--gold2);}
-    .ft-copy{font-size:11px;color:var(--t4);font-family:'DM Mono',monospace;}
+    .ft-copy{
+  font-family:'DM Mono',monospace;font-size:12px;
+  font-weight:400;color:rgba(255,255,255,0.5);letter-spacing:.2px;
+}
     .ft-links{display:flex;gap:16px;flex-wrap:wrap;}
-    .ft-links a{font-size:12px;color:var(--t4);text-decoration:none;transition:color .15s;}
+    .ft-links a{
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;
+  color:rgba(255,255,255,0.65);text-decoration:none;transition:color .15s;
+}
     .ft-links a:hover{color:var(--t2);}
 
     @media(max-width:720px){
