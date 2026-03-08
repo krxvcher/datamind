@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataMind — Личный кабинет</title>
+<title>StatsFai — Личный кабинет</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
 <style>
@@ -573,7 +573,7 @@ function exportExcel(id) {
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Анализ');
-  XLSX.writeFile(wb, `DataMind_${(a.type_label||'report').replace(/\s+/g,'_')}.xlsx`);
+  XLSX.writeFile(wb, `StatsFai_${(a.type_label||'report').replace(/\s+/g,'_')}.xlsx`);
 }
 
 function exportPDF(id) {
@@ -598,7 +598,7 @@ function exportPDF(id) {
   doc.setFillColor(7,7,11);
   doc.rect(0,0,210,297,'F');
   // title
-  addText('DataMind — Результаты анализа', 16, true, [232,197,106]);
+  addText('StatsFai — Результаты анализа', 16, true, [232,197,106]);
   y += 3;
   addText(`${a.type_label||a.type}  ·  ${a.niche_label||a.niche}  ·  ${a.currency||'USD'}`, 10, false, [120,120,144]);
   y += 5;
@@ -616,7 +616,7 @@ function exportPDF(id) {
       addText(t, 10, false, [194,194,212]);
     }
   });
-  doc.save(`DataMind_${(a.type_label||'report').replace(/\s+/g,'_')}.pdf`);
+  doc.save(`StatsFai_${(a.type_label||'report').replace(/\s+/g,'_')}.pdf`);
 }
 
 </script>
