@@ -76,7 +76,7 @@ header{
 .sel-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);
   text-transform:uppercase;letter-spacing:.5px;}
 .sel-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--t1);}
-.sel-arr{font-size:9px;color:var(--t4);}
+.sel-arr{font-size:9px;color:var(--t3);}
 .sel-drop{display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:180px;
   background:var(--s2);border:1px solid var(--b2);border-radius:var(--r2);
   overflow:hidden;z-index:100;box-shadow:0 20px 50px rgba(0,0,0,.6);}
@@ -175,7 +175,7 @@ h1 em .num{
 .sp-arr{color:var(--t3);font-size:14px;}
 
 /* section label */
-.sec-tag{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;
+.sec-tag{font-family:'DM Mono',monospace;font-size:11px;font-weight:400;
   letter-spacing:2px;text-transform:uppercase;color:var(--t3);
   text-align:center;margin-bottom:18px;
   display:flex;align-items:center;justify-content:center;gap:14px;}
@@ -822,7 +822,7 @@ function selNiche(n){
   document.getElementById('niche-'+n).classList.add('active');
   setStep(2);
   const c=document.getElementById('atypes');
-  c.innerHTML='<div style="width:100%;text-align:center;font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Шаг 2 — тип анализа</div>'+
+  c.innerHTML='<div style="width:100%;text-align:center;font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Шаг 2 — тип анализа</div>'+
     NICHES[n].types.map(t=>`<button class="tc" onclick="selType('${t.id}','${t.label}')" id="type-${t.id}">${t.label}</button>`).join('');
   c.classList.add('visible');
   hide('form-card');hide('rc');hide('loading');
