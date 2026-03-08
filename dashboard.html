@@ -62,7 +62,8 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
 .stat-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);
-  padding:14px 16px 12px;transition:border-color .15s;position:relative;overflow:hidden;}
+  padding:14px 16px 12px;transition:border-color .15s;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
 .stat-card:hover{border-color:var(--b2);}
 .stat-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;
   color:var(--t1);margin-bottom:3px;letter-spacing:-1px;line-height:1;}
