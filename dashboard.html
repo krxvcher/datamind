@@ -203,6 +203,8 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;
   .an-date{display:none;}
 }
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -394,6 +396,8 @@ function renderCard(a) {
         <div class="report-scroll">${formatReport(a.result_text||'')}</div>
         <div class="report-actions">
           <button class="ract" onclick="copyReport('${a.id}')">📋 Копировать</button>
+          <button class="ract" onclick="exportExcel('${a.id}')">📊 Excel</button>
+          <button class="ract" onclick="exportPDF('${a.id}')">📄 PDF</button>
         </div>
       </div>
       ${renderInputData(a.input_data)}
@@ -468,6 +472,12 @@ function formatReport(text) {
         const fmt = c.replace(/^([^:：]+[:：])/,'<span class="kw">$1</span>');
         return `<div class="brow"><span class="barr">→</span><span class="btxt">${fmt}</span></div>`;
       }
+      if (/^\d+\.\s/.test(t)) {
+        const num = t.match(/^(\d+\.)/)[1];
+        const rest = t.replace(/^\d+\.\s*/,'');
+        const fmt = rest.replace(/^([^:：]+[:：])/,'<span class="kw">$1</span>');
+        return `<div class="brow"><span class="barr" style="color:var(--gold2);min-width:18px;">${num}</span><span class="btxt">${fmt}</span></div>`;
+      }
       return `<p>${t}</p>`;
     }).join('');
     html += `<div class="rsec"><div class="shead"><span class="sico">${ico(title)}</span><span class="sname">${title}</span></div><div class="sbody">${bhtml||'<p>—</p>'}</div></div>`;
@@ -494,6 +504,69 @@ function plural(n, one, two, five) {
   if (m2 >= 2 && m2 <= 4) return `${n} ${two}`;
   return `${n} ${five}`;
 }
+
+// ── EXPORT FROM DASHBOARD ────────────────────────────────────────────────────
+function exportExcel(id) {
+  const a = allAnalyses.find(x => x.id === id);
+  if (!a || !window.XLSX) return;
+  const lines = (a.result_text||'')
+    .replace(/\*\*(.*?)\*\*/g,'[$1]')
+    .split('\n').filter(l=>l.trim())
+    .map(l => [l.trim()]);
+  const ws = XLSX.utils.aoa_to_sheet([
+    [`${a.type_label||a.type} — ${a.niche_label||a.niche}`],
+    [`${a.currency||'USD'} · ${a.region||'Global'}`],
+    [],
+    ...lines
+  ]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Анализ');
+  XLSX.writeFile(wb, `DataMind_${(a.type_label||'report').replace(/\s+/g,'_')}.xlsx`);
+}
+
+function exportPDF(id) {
+  const a = allAnalyses.find(x => x.id === id);
+  if (!a || !window.jspdf) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const margin = 15, lineH = 6, pageW = 210 - margin*2;
+  let y = 20;
+  const addText = (txt, size, bold, color) => {
+    doc.setFontSize(size||11);
+    doc.setFont('helvetica', bold?'bold':'normal');
+    if(color) doc.setTextColor(...color); else doc.setTextColor(220,220,230);
+    const lines = doc.splitTextToSize(txt, pageW);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += lineH;
+    });
+  };
+  // dark background
+  doc.setFillColor(7,7,11);
+  doc.rect(0,0,210,297,'F');
+  // title
+  addText('DataMind — Результаты анализа', 16, true, [232,197,106]);
+  y += 3;
+  addText(`${a.type_label||a.type}  ·  ${a.niche_label||a.niche}  ·  ${a.currency||'USD'}`, 10, false, [120,120,144]);
+  y += 5;
+  // body
+  const text = (a.result_text||'').replace(/\*\*(.*?)\*\*/g,'■ $1').split('\n');
+  text.forEach(line => {
+    const t = line.trim();
+    if (!t) { y += 2; return; }
+    if (t.startsWith('■ ')) {
+      y += 3;
+      addText(t.replace('■ ',''), 11, true, [232,197,106]);
+    } else if (/^[–\-]\s/.test(t)) {
+      addText('  ' + t, 10, false, [194,194,212]);
+    } else {
+      addText(t, 10, false, [194,194,212]);
+    }
+  });
+  doc.save(`DataMind_${(a.type_label||'report').replace(/\s+/g,'_')}.pdf`);
+}
+
 </script>
 </body>
 </html>
