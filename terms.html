@@ -15,7 +15,7 @@
       --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
       --r:14px;--r2:10px;
     }
-    html{scroll-behavior:smooth;}
+    html{font-size:110%;scroll-behavior:smooth;}
     body{
       background:var(--bg);color:var(--t2);
       font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;
@@ -37,13 +37,17 @@
     }
     .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
     .logo-mark{
-      width:26px;height:26px;border-radius:7px;flex-shrink:0;
-      background:linear-gradient(135deg,var(--gold2),var(--gold));
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#07070b;
-      box-shadow:0 0 18px rgba(212,168,67,.32);
-    }
-    .logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--t1);}
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;
+  color:#07070b;letter-spacing:-0.5px;
+  box-shadow:0 0 20px rgba(212,168,67,.35);
+}
+    .logo-text{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+  letter-spacing:-.3px;color:#ffffff;
+}
     .logo-text span{color:var(--gold2);}
     .header-back{
       font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);
@@ -145,22 +149,33 @@
 
     /* ── FOOTER ── */
     footer{
-      border-top:1px solid var(--b1);padding:22px 40px;
-      display:flex;align-items:center;justify-content:space-between;
-      position:relative;z-index:1;flex-wrap:wrap;gap:12px;
-    }
+  border-top:1px solid var(--b2);padding:26px 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;flex-wrap:wrap;gap:14px;
+}
     .ft-logo{display:flex;align-items:center;gap:8px;}
     .ft-logo-mark{
-      width:20px;height:20px;border-radius:5px;
-      background:linear-gradient(135deg,var(--gold2),var(--gold));
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Syne',sans-serif;font-size:9px;font-weight:800;color:#07070b;
-    }
-    .ft-logo-txt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);}
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  color:#07070b;letter-spacing:-0.5px;
+  box-shadow:0 0 12px rgba(212,168,67,.25);
+}
+    .ft-logo-txt{
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  color:#ffffff;letter-spacing:-.2px;
+}
     .ft-logo-txt span{color:var(--gold2);}
-    .ft-copy{font-size:11px;color:var(--t4);font-family:'DM Mono',monospace;}
+    .ft-copy{
+  font-family:'DM Mono',monospace;font-size:12px;
+  font-weight:400;color:rgba(255,255,255,0.5);letter-spacing:.2px;
+}
     .ft-links{display:flex;gap:16px;flex-wrap:wrap;}
-    .ft-links a{font-size:12px;color:var(--t4);text-decoration:none;transition:color .15s;}
+    .ft-links a{
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;
+  color:rgba(255,255,255,0.65);text-decoration:none;transition:color .15s;
+}
     .ft-links a:hover{color:var(--t2);}
 
     @media(max-width:480px){
@@ -175,8 +190,8 @@
 
 <header>
   <a class="logo" href="/">
-    <div class="logo-mark">D</div>
-    <div class="logo-text">Data<span>Mind</span></div>
+    <div class="logo-mark">S</div>
+    <div class="logo-text">Stats<span>Fai</span></div>
   </a>
   <a class="header-back" href="/">← На главную</a>
 </header>
@@ -272,7 +287,7 @@
     <p>Если вы являетесь потребителем (Consumer), вы имеете право отменить заказ в течение <strong>14 дней</strong> с момента покупки, если вы ещё не начали использовать сервис (не выполнили ни одного анализа). Это право предусмотрено законодательством о защите прав потребителей.</p>
     <p><strong>Исключение:</strong> право на отмену не распространяется на цифровой контент, использование которого уже началось. Поскольку StatsFai предоставляет мгновенный доступ к цифровому сервису, право на возврат утрачивается с момента первого использования.</p>
     <p>Решение о возврате принимается Paddle на индивидуальной основе. Paddle вправе отказать в возврате при наличии признаков мошенничества или злоупотреблений.</p>
-    <p>Для запроса возврата обратитесь в службу поддержки: <a href="mailto:support@statsfai.com" style="color:var(--gold2)">support@statsfai.com</a>. Мы передадим запрос в Paddle для рассмотрения.</p>
+    <p>Для запроса возврата обратитесь в службу поддержки: <a href="/cdn-cgi/l/email-protection#f1828481819e8385b18285908582979098df929e9c" style="color:var(--gold2)"><span class="__cf_email__" data-cfemail="84f7f1f4f4ebf6f0c4f7f0e5f0f7e2e5edaae7ebe9">[email&#160;protected]</span></a>. Мы передадим запрос в Paddle для рассмотрения.</p>
     <p>Подробнее: <a href="https://www.paddle.com/legal/checkout-buyer-terms" target="_blank" style="color:var(--gold2)">условия Paddle для покупателей</a>.</p>
   </div>
 
@@ -366,10 +381,7 @@
 
 <footer>
   <div class="ft-logo">
-    <div class="ft-logo-mark">D</div>
-    <div class="ft-logo-txt">Data<span>Mind</span></div>
+    <div class="ft-logo-mark">S</div>
+    <div class="ft-logo-txt">Stats<span>Fai</span></div>
   </div>
-  <div class="ft-copy">© 2025 StatsFai · AI-аналитика для бизнеса</div>
-  <div class="ft-links">
-    <a href="/">Главная</a>
-    <a href="/pricing.html">Цены
+  <div class="ft-copy">© 2025 StatsFai · AI-ана�
