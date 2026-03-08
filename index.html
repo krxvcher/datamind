@@ -660,7 +660,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.sel-wrap'))document.querySelectorAll('.sel-wrap').forEach(w=>w.classList.remove('open'));
 });
 function setCur(code,sym,display,el){
-  cSym=sym;cCode=code;cCurLabel=display;
+  cSym=sym;cCode=code;
   document.getElementById('cdisplay').textContent=display;
   document.getElementById('csym').textContent=sym;
   document.getElementById('ccode').textContent=code;
@@ -727,11 +727,11 @@ function showPW(){document.getElementById('pwo').classList.add('visible');docume
 let cNiche=null,cType=null,rawText='',inputData={},nicheLabel='',typeLabel='';
 const v=(id,def='')=>document.getElementById(id)?.value?.trim()||def;
 const NICHES={
-  ecom:{label:'Интернет-магазин',types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'}]},
-  cafe:{label:'Кафе / Ресторан',types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'}]},
-  freelance:{label:'Услуги / Фриланс',types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'}]},
-  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'}]},
-  content:{label:'Контент / Вирал',types:[{id:'tiktok',label:'🎵 TikTok'},{id:'instagram',label:'📸 Instagram'},{id:'youtube',label:'▶️ YouTube'},{id:'strategy',label:'📱 Стратегия'}]}
+  ecom:{label:'Интернет-магазин',types:[{id:'sales',label:'📈 Анализ продаж'},{id:'products',label:'📦 Товары'},{id:'forecast',label:'🔮 Прогноз'},{id:'item',label:'🔍 Разбор товара'}]},
+  cafe:{label:'Кафе / Ресторан',types:[{id:'revenue',label:'💰 Выручка'},{id:'menu',label:'🍽 Меню'},{id:'traffic',label:'👥 Трафик'},{id:'dish',label:'🍴 Разбор блюда'}]},
+  freelance:{label:'Услуги / Фриланс',types:[{id:'income',label:'💵 Доход'},{id:'clients',label:'🤝 Клиенты'},{id:'growth',label:'🚀 Рост'},{id:'service',label:'💎 Разбор услуги'}]},
+  retail:{label:'Розница',types:[{id:'sales',label:'📈 Продажи'},{id:'inventory',label:'📦 Остатки'},{id:'forecast',label:'🔮 Прогноз'},{id:'product',label:'🔍 Разбор товара'}]},
+  content:{label:'Контент / Вирал',types:[{id:'tiktok',label:'🎵 TikTok'},{id:'instagram',label:'📸 Instagram'},{id:'youtube',label:'▶️ YouTube'},{id:'strategy',label:'📱 Стратегия'},{id:'idea',label:'💡 Разбор идеи'}]}
 };
 const F={};
 
@@ -1196,6 +1196,151 @@ F.content_strategy={
   metrics:d=>[{val:'AI',lbl:'Стратегия',cls:'neutral'},{val:'📱',lbl:'Кросс-платформа',cls:'up'},{val:'↑',lbl:'Рост',cls:'up'}]
 };
 
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// НОВЫЕ ФОРМЫ: РАЗБОР ЕДИНИЦЫ
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 1. ИНТЕРНЕТ-МАГАЗИН — Разбор товара
+F.ecom_item={title:'Разбор товара',subtitle:'Потенциал, позиционирование и стратегия продаж',
+  prompt:d=>P(
+    ['ОЦЕНКА ТОВАРА','АНАЛИЗ СПРОСА И ТРЕНДОВ','ЦЕЛЕВАЯ АУДИТОРИЯ','ЦЕНООБРАЗОВАНИЕ И МАРЖА','СТРАТЕГИЯ ПРОДАЖ','КОГДА И КАК ПРОДАВАТЬ','РИСКИ И РЕКОМЕНДАЦИИ'],
+    `Товар: ${d.name}. Категория: ${d.category}. Цена продажи: ${C()}${d.price}. Закупочная цена: ${C()}${d.cost}. Описание/особенности: ${d.desc}. Конкуренты: ${d.competitors}. Целевая аудитория: ${d.audience}. Текущие продажи в месяц: ${d.sales} шт. Основные каналы: ${d.channels}. Сезонность: ${d.seasonality}. Регион: ${cRegion}.`),
+  fields:()=>`
+    <div class="fg">
+      <div class="fl full"><label>Название товара</label><input type="text" id="f_name" placeholder="Умная колонка Xiaomi Gen 3"/></div>
+      <div class="fl"><label>Категория</label><input type="text" id="f_category" placeholder="Электроника / Smart Home"/></div>
+      <div class="fl"><label>Цена продажи (${C()})</label><input type="number" id="f_price" placeholder="89"/></div>
+      <div class="fl"><label>Закупочная цена (${C()})</label><input type="number" id="f_cost" placeholder="42"/></div>
+      <div class="fl"><label>Продаж в месяц (шт)</label><input type="number" id="f_sales" placeholder="35"/></div>
+      <div class="fl"><label>Сезонность</label><input type="text" id="f_seasonality" placeholder="Пик в ноябре-декабре"/></div>
+      <div class="fl full"><label>Уникальные особенности товара</label><input type="text" id="f_desc" placeholder="Голосовой помощник, Wi-Fi, работает без интернета"/></div>
+      <div class="fl full"><label>Основные конкуренты</label><input type="text" id="f_competitors" placeholder="Amazon Echo Dot, Яндекс Станция Mini"/></div>
+      <div class="fl full"><label>Целевая аудитория</label><input type="text" id="f_audience" placeholder="Молодые семьи 25–40 лет, покупатели смарт-техники"/></div>
+      <div class="fl full"><label>Каналы продаж</label><input type="text" id="f_channels" placeholder="Wildberries, Ozon, собственный сайт"/></div>
+    </div><div class="div"></div>`,
+  getData:()=>({name:v('f_name'),category:v('f_category'),price:v('f_price','0'),cost:v('f_cost','0'),sales:v('f_sales','0'),seasonality:v('f_seasonality'),desc:v('f_desc'),competitors:v('f_competitors'),audience:v('f_audience'),channels:v('f_channels')}),
+  metrics:d=>{const margin=d.price&&d.cost?Math.round((1-d.cost/d.price)*100):0;return[{val:d.price?C()+d.price:'—',lbl:'Цена',cls:'neutral'},{val:margin+'%',lbl:'Маржа',cls:margin>40?'up':margin>20?'neutral':'down'},{val:(d.sales||'0')+' шт',lbl:'Продаж/мес',cls:'up'}];}};
+
+// 2. КАФЕ / РЕСТОРАН — Разбор блюда
+F.cafe_dish={title:'Разбор блюда',subtitle:'Рентабельность, позиционирование и продвижение',
+  prompt:d=>P(
+    ['ОЦЕНКА БЛЮДА','СЕБЕСТОИМОСТЬ И МАРЖА','ПОЗИЦИОНИРОВАНИЕ В МЕНЮ','ЦЕЛЕВОЙ ГОСТЬ','КОГДА И КАК ПРОДАВАТЬ','МАРКЕТИНГ И ПОДАЧА','ПРОГНОЗ И РЕКОМЕНДАЦИИ'],
+    `Блюдо: ${d.name}. Категория в меню: ${d.category}. Цена в меню: ${C()}${d.price}. Себестоимость: ${C()}${d.cost}. Ингредиенты/состав: ${d.ingredients}. Продаж в день: ${d.daily_sales} порций. Время приготовления: ${d.prep_time} мин. Конкурентные блюда в меню: ${d.competitors}. Целевой гость: ${d.audience}. Текущее продвижение: ${d.promo}. Регион/концепция заведения: ${cRegion}, ${d.concept}.`),
+  fields:()=>`
+    <div class="fg">
+      <div class="fl full"><label>Название блюда</label><input type="text" id="f_name" placeholder="Тартар из лосося с авокадо"/></div>
+      <div class="fl"><label>Категория в меню</label><input type="text" id="f_category" placeholder="Закуски / Авторские блюда"/></div>
+      <div class="fl"><label>Цена в меню (${C()})</label><input type="number" id="f_price" placeholder="18"/></div>
+      <div class="fl"><label>Себестоимость (${C()})</label><input type="number" id="f_cost" placeholder="6"/></div>
+      <div class="fl"><label>Продаж в день (порций)</label><input type="number" id="f_daily_sales" placeholder="12"/></div>
+      <div class="fl"><label>Время приготовления (мин)</label><input type="number" id="f_prep_time" placeholder="8"/></div>
+      <div class="fl full"><label>Состав / ингредиенты</label><input type="text" id="f_ingredients" placeholder="Лосось, авокадо, каперсы, лимон, соус юзу"/></div>
+      <div class="fl full"><label>Концепция заведения</label><input type="text" id="f_concept" placeholder="Современный паназиатский ресторан, средний чек $35"/></div>
+      <div class="fl full"><label>Конкурирующие блюда в вашем меню</label><input type="text" id="f_competitors" placeholder="Карпаччо из говядины, севиче из креветок"/></div>
+      <div class="fl full"><label>Целевой гость</label><input type="text" id="f_audience" placeholder="Бизнес-ланч, гурманы 28–45 лет"/></div>
+      <div class="fl full"><label>Текущее продвижение блюда</label><input type="text" id="f_promo" placeholder="Блюдо дня по вторникам, фото в Instagram"/></div>
+    </div><div class="div"></div>`,
+  getData:()=>({name:v('f_name'),category:v('f_category'),price:v('f_price','0'),cost:v('f_cost','0'),daily_sales:v('f_daily_sales','0'),prep_time:v('f_prep_time','0'),ingredients:v('f_ingredients'),concept:v('f_concept'),competitors:v('f_competitors'),audience:v('f_audience'),promo:v('f_promo')}),
+  metrics:d=>{const margin=d.price&&d.cost?Math.round((1-d.cost/d.price)*100):0;const daily=parseInt(d.daily_sales||0);const rev=daily*(parseFloat(d.price)||0);return[{val:margin+'%',lbl:'Маржа',cls:margin>60?'up':margin>40?'neutral':'down'},{val:d.daily_sales||'—',lbl:'Порций/день',cls:'up'},{val:rev?C()+Math.round(rev):'—',lbl:'Выручка/день',cls:'neutral'}];}};
+
+// 3. УСЛУГИ / ФРИЛАНС — Разбор услуги
+F.freelance_service={title:'Разбор услуги',subtitle:'Ценность, упаковка и стратегия продажи',
+  prompt:d=>P(
+    ['ОЦЕНКА УСЛУГИ','АНАЛИЗ РЫНКА И КОНКУРЕНТОВ','ЦЕЛЕВОЙ КЛИЕНТ','ЦЕНООБРАЗОВАНИЕ','УПАКОВКА И ПРОДВИЖЕНИЕ','КОГДА И КАК ПРОДАВАТЬ','ПРОГНОЗ ДОХОДА И РЕКОМЕНДАЦИИ'],
+    `Услуга: ${d.name}. Ниша: ${d.niche}. Цена: ${C()}${d.price} (${d.price_type}). Время выполнения: ${d.duration}. Что входит: ${d.deliverables}. Текущих клиентов на эту услугу: ${d.active_clients}. Откуда берут клиенты: ${d.channels}. Конкуренты и их цены: ${d.competitors}. Главная боль клиента: ${d.pain}. Уникальность: ${d.usp}. Регион: ${cRegion}.`),
+  fields:()=>`
+    <div class="fg">
+      <div class="fl full"><label>Название услуги</label><input type="text" id="f_name" placeholder="SEO-аудит сайта под ключ"/></div>
+      <div class="fl"><label>Ниша / специализация</label><input type="text" id="f_niche" placeholder="Веб-маркетинг, малый бизнес"/></div>
+      <div class="fl"><label>Цена (${C()})</label><input type="number" id="f_price" placeholder="350"/></div>
+      <div class="fl"><label>Тип ценообразования</label>
+        <select id="f_price_type">
+          <option value="фиксированная цена за проект">Фикс за проект</option>
+          <option value="почасовая оплата">Почасовая</option>
+          <option value="ежемесячная подписка">Подписка/месяц</option>
+          <option value="пакет из нескольких сессий">Пакет сессий</option>
+        </select>
+      </div>
+      <div class="fl"><label>Срок выполнения</label><input type="text" id="f_duration" placeholder="5 рабочих дней"/></div>
+      <div class="fl"><label>Клиентов на эту услугу сейчас</label><input type="number" id="f_active_clients" placeholder="3"/></div>
+      <div class="fl full"><label>Что входит в услугу (deliverables)</label><textarea id="f_deliverables" placeholder="Технический аудит 80+ пунктов, отчёт PDF, созвон 1 час, план исправлений на 3 месяца" style="min-height:60px"></textarea></div>
+      <div class="fl full"><label>Главная боль клиента</label><input type="text" id="f_pain" placeholder="Сайт не растёт в поиске, не знает почему"/></div>
+      <div class="fl full"><label>Ваше УТП (чем отличаетесь)</label><input type="text" id="f_usp" placeholder="Даю гарантию роста трафика +30% за 90 дней"/></div>
+      <div class="fl full"><label>Каналы привлечения клиентов</label><input type="text" id="f_channels" placeholder="Upwork, LinkedIn, сарафан"/></div>
+      <div class="fl full"><label>Конкуренты и их цены</label><input type="text" id="f_competitors" placeholder="Агентства $500–2000, фрилансеры $100–300"/></div>
+    </div><div class="div"></div>`,
+  getData:()=>({name:v('f_name'),niche:v('f_niche'),price:v('f_price','0'),price_type:v('f_price_type'),duration:v('f_duration'),active_clients:v('f_active_clients','0'),deliverables:v('f_deliverables'),pain:v('f_pain'),usp:v('f_usp'),channels:v('f_channels'),competitors:v('f_competitors')}),
+  metrics:d=>[{val:d.price?C()+d.price:'—',lbl:'Цена услуги',cls:'neutral'},{val:d.active_clients||'0',lbl:'Клиентов',cls:'up'},{val:d.duration||'—',lbl:'Срок',cls:'neutral'}]};
+
+// 4. РОЗНИЧНЫЙ МАГАЗИН — Разбор товара
+F.retail_product={title:'Разбор товара',subtitle:'Потенциал продаж, ценообразование и выкладка',
+  prompt:d=>P(
+    ['ОЦЕНКА ТОВАРА','АНАЛИЗ СПРОСА В РОЗНИЦЕ','ЦЕНООБРАЗОВАНИЕ И КОНКУРЕНТЫ','ВЫКЛАДКА И МЕРЧАНДАЙЗИНГ','СЕЗОННОСТЬ И КПД','СТРАТЕГИЯ ПРОДВИЖЕНИЯ','ПРОГНОЗ И РЕКОМЕНДАЦИИ'],
+    `Товар: ${d.name}. Категория: ${d.category}. Розничная цена: ${C()}${d.price}. Закупочная: ${C()}${d.cost}. Поставщик: ${d.supplier}. Продаж в неделю: ${d.weekly_sales} шт. Остаток на складе: ${d.stock} шт. Место на полке: ${d.shelf}. Конкуренты в магазине: ${d.competitors}. Целевой покупатель: ${d.audience}. Текущая выкладка/акции: ${d.promo}. Регион: ${cRegion}.`),
+  fields:()=>`
+    <div class="fg">
+      <div class="fl full"><label>Название товара</label><input type="text" id="f_name" placeholder="Протеиновый батончик Fit Kit 60г"/></div>
+      <div class="fl"><label>Категория</label><input type="text" id="f_category" placeholder="Спортивное питание / Снеки"/></div>
+      <div class="fl"><label>Розничная цена (${C()})</label><input type="number" id="f_price" placeholder="3.50"/></div>
+      <div class="fl"><label>Закупочная цена (${C()})</label><input type="number" id="f_cost" placeholder="1.80"/></div>
+      <div class="fl"><label>Продаж в неделю (шт)</label><input type="number" id="f_weekly_sales" placeholder="45"/></div>
+      <div class="fl"><label>Остаток на складе (шт)</label><input type="number" id="f_stock" placeholder="120"/></div>
+      <div class="fl full"><label>Поставщик и условия</label><input type="text" id="f_supplier" placeholder="ООО Фитнес Фуд, минимальный заказ 200 шт, отсрочка 14 дней"/></div>
+      <div class="fl full"><label>Место на полке / зона магазина</label><input type="text" id="f_shelf" placeholder="Прикассовая зона, нижняя полка, 3 фейсинга"/></div>
+      <div class="fl full"><label>Конкуренты в магазине</label><input type="text" id="f_competitors" placeholder="Snickers Protein, Bombbar, натуральные батончики"/></div>
+      <div class="fl full"><label>Целевой покупатель</label><input type="text" id="f_audience" placeholder="Активная молодёжь 18–35, посетители зала рядом"/></div>
+      <div class="fl full"><label>Текущие акции / выкладка</label><input type="text" id="f_promo" placeholder="Нет активных акций, лежит в ряд с конкурентами"/></div>
+    </div><div class="div"></div>`,
+  getData:()=>({name:v('f_name'),category:v('f_category'),price:v('f_price','0'),cost:v('f_cost','0'),weekly_sales:v('f_weekly_sales','0'),stock:v('f_stock','0'),supplier:v('f_supplier'),shelf:v('f_shelf'),competitors:v('f_competitors'),audience:v('f_audience'),promo:v('f_promo')}),
+  metrics:d=>{const margin=d.price&&d.cost?Math.round((1-d.cost/d.price)*100):0;const weeks=d.stock&&d.weekly_sales?Math.round(d.stock/d.weekly_sales):0;return[{val:margin+'%',lbl:'Маржа',cls:margin>45?'up':margin>25?'neutral':'down'},{val:(d.weekly_sales||'0')+' шт',lbl:'Продаж/нед',cls:'up'},{val:weeks?weeks+' нед':'—',lbl:'Запас',cls:weeks<2?'down':weeks>8?'neutral':'up'}];}};
+
+// 5. КОНТЕНТ / ВИРАЛ — Разбор идеи
+F.content_idea={title:'Разбор идеи контента',subtitle:'Вирусный потенциал, сценарий и прогноз охвата',
+  prompt:d=>P(
+    ['ОЦЕНКА ВИРУСНОГО ПОТЕНЦИАЛА','ЦЕЛЕВАЯ АУДИТОРИЯ И БОЛЬ','СЦЕНАРИЙ И СТРУКТУРА','ХУК — ПЕРВЫЕ 3 СЕКУНДЫ','ЛУЧШЕЕ ВРЕМЯ И ПЛАТФОРМА','SEO И ХЭШТЕГИ','ПРОГНОЗ ОХВАТА И РЕКОМЕНДАЦИИ'],
+    `Идея: ${d.idea}. Платформа: ${d.platform}. Формат: ${d.format}. Целевая аудитория: ${d.audience}. Ниша / тема канала: ${d.niche}. Подписчиков сейчас: ${d.followers}. Средние просмотры: ${d.avg_views}. Похожие вирусные видео: ${d.references}. Цель видео: ${d.goal}. Доп. контекст: ${d.context}. Регион: ${cRegion}.`),
+  fields:()=>`
+    <div class="fg">
+      <div class="fl full"><label>Идея / тема видео</label><textarea id="f_idea" placeholder="Показать как я за 30 дней вышел на $1000/мес с нуля на фрилансе, без опыта и портфолио" style="min-height:60px"></textarea></div>
+      <div class="fl"><label>Платформа</label>
+        <select id="f_platform">
+          <option value="TikTok">TikTok</option>
+          <option value="Instagram Reels">Instagram Reels</option>
+          <option value="YouTube Shorts">YouTube Shorts</option>
+          <option value="YouTube (длинное видео)">YouTube (длинное)</option>
+          <option value="Telegram">Telegram</option>
+        </select>
+      </div>
+      <div class="fl"><label>Формат</label>
+        <select id="f_format">
+          <option value="история / трансформация">История / трансформация</option>
+          <option value="обучающий / туториал">Обучение / туториал</option>
+          <option value="провокация / спор">Провокация / спор</option>
+          <option value="до и после">До и после</option>
+          <option value="топ-список / рейтинг">Топ-список</option>
+          <option value="разоблачение / мифы">Разоблачение / мифы</option>
+          <option value="день из жизни">День из жизни</option>
+        </select>
+      </div>
+      <div class="fl"><label>Ниша / тема канала</label><input type="text" id="f_niche" placeholder="Фриланс, заработок онлайн"/></div>
+      <div class="fl"><label>Цель видео</label>
+        <select id="f_goal">
+          <option value="максимальный охват и новые подписчики">Охват и подписчики</option>
+          <option value="продажа продукта или услуги">Продажа продукта</option>
+          <option value="вовлечённость и комментарии">Вовлечённость</option>
+          <option value="авторитет и доверие в нише">Авторитет в нише</option>
+        </select>
+      </div>
+      <div class="fl"><label>Подписчиков сейчас</label><input type="number" id="f_followers" placeholder="1200"/></div>
+      <div class="fl"><label>Средние просмотры</label><input type="number" id="f_avg_views" placeholder="800"/></div>
+      <div class="fl full"><label>Целевая аудитория</label><input type="text" id="f_audience" placeholder="Начинающие фрилансеры 18–30 лет, хотят уйти с найма"/></div>
+      <div class="fl full"><label>Похожие вирусные видео / референсы</label><input type="text" id="f_references" placeholder="@levelsio — как я живу из ноутбука, Pieter Levels стиль"/></div>
+      <div class="fl full"><label>Дополнительный контекст</label><input type="text" id="f_context" placeholder="Снимаю на телефон, монтаж в CapCut, выхожу 3 раза в неделю"/></div>
+    </div><div class="div"></div>`,
+  getData:()=>({idea:v('f_idea'),platform:v('f_platform'),format:v('f_format'),niche:v('f_niche'),goal:v('f_goal'),followers:v('f_followers','0'),avg_views:v('f_avg_views','0'),audience:v('f_audience'),references:v('f_references'),context:v('f_context')}),
+  metrics:d=>{const ratio=d.avg_views&&d.followers?Math.round(d.avg_views/d.followers*100):0;return[{val:d.platform||'—',lbl:'Платформа',cls:'neutral'},{val:(d.followers||'0'),lbl:'Подписчиков',cls:'neutral'},{val:ratio+'%',lbl:'Охват/подп.',cls:ratio>30?'up':ratio>10?'neutral':'down'}];}};
 
 // ── SUPABASE AUTH ────────────────────────────────────────────────────────────
 const SUPA_URL  = 'https://puzfykbmphicudyqvafz.supabase.co';
