@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Цены — DataMind · AI-аналитика для бизнеса</title>
+  <meta name="description" content="Тарифы DataMind — от бесплатного плана до безлимитного Про. AI-анализ вашего бизнеса от $7 в месяц."/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#07070b;--s1:#0d0d13;--s2:#131318;--s3:#1a1a22;--s4:#22222c;
+      --b1:rgba(255,255,255,0.045);--b2:rgba(255,255,255,0.085);--b3:rgba(255,255,255,0.14);
+      --gold:#d4a843;--gold2:#e8c56a;--gdim:rgba(212,168,67,0.1);--gborder:rgba(212,168,67,0.22);
+      --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
+      --r:14px;--r2:10px;
+    }
+    html{scroll-behavior:smooth;}
+    body{
+      background:var(--bg);color:var(--t2);
+      font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;
+      min-height:100vh;
+    }
+    body::after{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.018;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* ── HEADER ── */
+    header{
+      position:sticky;top:0;z-index:50;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 40px;height:56px;
+      background:rgba(7,7,11,0.88);backdrop-filter:blur(28px);
+      border-bottom:1px solid var(--b2);
+    }
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+    .logo-mark{
+      width:26px;height:26px;border-radius:7px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#07070b;
+      box-shadow:0 0 18px rgba(212,168,67,.32);
+    }
+    .logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--t1);}
+    .logo-text span{color:var(--gold2);}
+    .header-back{
+      font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);
+      text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .15s;
+    }
+    .header-back:hover{color:var(--t1);}
+
+    /* ── HERO ── */
+    .hero{
+      text-align:center;padding:64px 24px 0;
+      position:relative;z-index:1;
+    }
+    .hero-tag{
+      display:inline-flex;align-items:center;gap:7px;
+      font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;
+      background:var(--s1);border:1px solid var(--b2);
+      padding:5px 12px;border-radius:20px;margin-bottom:24px;
+    }
+    .hero-tag::before{content:'◆';color:var(--gold2);font-size:8px;}
+    h1{
+      font-family:'Syne',sans-serif;
+      font-size:clamp(32px,5vw,52px);
+      font-weight:800;color:var(--t1);
+      line-height:1.1;letter-spacing:-1.5px;
+      margin-bottom:16px;
+    }
+    h1 em{color:var(--gold2);font-style:normal;}
+    .hero-sub{
+      font-size:15px;color:var(--t3);max-width:480px;
+      margin:0 auto 48px;line-height:1.6;
+    }
+
+    /* ── TOGGLE ── */
+    .billing-toggle{
+      display:flex;align-items:center;justify-content:center;
+      gap:10px;margin-bottom:44px;
+    }
+    .toggle-label{
+      font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);
+      cursor:pointer;transition:color .15s;
+    }
+    .toggle-label.active{color:var(--t1);}
+    .toggle-track{
+      width:44px;height:24px;background:var(--s2);border:1px solid var(--b2);
+      border-radius:12px;cursor:pointer;position:relative;transition:background .2s;
+    }
+    .toggle-track.annual{background:rgba(212,168,67,0.2);border-color:var(--gborder);}
+    .toggle-thumb{
+      position:absolute;top:3px;left:3px;width:16px;height:16px;
+      border-radius:50%;background:var(--t3);transition:all .2s;
+    }
+    .toggle-track.annual .toggle-thumb{left:23px;background:var(--gold2);}
+    .save-badge{
+      font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
+      background:rgba(212,168,67,0.15);color:var(--gold2);
+      border:1px solid var(--gborder);padding:2px 8px;border-radius:20px;
+      letter-spacing:.5px;text-transform:uppercase;
+    }
+
+    /* ── PLANS GRID ── */
+    .plans-wrap{
+      max-width:980px;margin:0 auto;padding:0 24px 80px;
+      position:relative;z-index:1;
+    }
+    .plans{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+      align-items:start;
+    }
+    .plan{
+      background:var(--s1);border:1px solid var(--b2);border-radius:18px;
+      padding:28px 22px 24px;position:relative;
+      transition:border-color .2s, transform .2s;
+    }
+    .plan:hover{border-color:var(--b3);}
+    .plan-featured{
+      border-color:var(--gold);
+      background:linear-gradient(180deg,rgba(212,168,67,0.07) 0%,var(--s1) 60%);
+      transform:translateY(-6px);
+      box-shadow:0 24px 60px rgba(212,168,67,0.12);
+    }
+    .plan-featured:hover{border-color:var(--gold2);}
+    .plan-badge{
+      position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      color:#07070b;font-family:'DM Mono',monospace;
+      font-size:9px;font-weight:700;padding:3px 12px;border-radius:20px;
+      letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;
+    }
+
+    .plan-name{
+      font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+      color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;
+      margin-bottom:16px;
+    }
+    .plan-price{
+      font-family:'Syne',sans-serif;font-size:40px;font-weight:800;
+      color:var(--t1);line-height:1;margin-bottom:4px;letter-spacing:-2px;
+    }
+    .plan-price sup{font-size:20px;font-weight:600;letter-spacing:0;vertical-align:top;margin-top:6px;display:inline-block;}
+    .plan-price-free{
+      font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+      color:var(--t1);line-height:1;margin-bottom:4px;
+    }
+    .plan-period{
+      font-family:'DM Mono',monospace;font-size:11px;color:var(--t4);
+      margin-bottom:6px;
+    }
+    .plan-saving{
+      font-family:'DM Mono',monospace;font-size:10px;color:var(--gold2);
+      margin-bottom:20px;min-height:16px;
+    }
+
+    .plan-divider{height:1px;background:var(--b1);margin:16px 0 20px;}
+
+    .plan-features{list-style:none;margin-bottom:24px;}
+    .plan-features li{
+      font-size:13px;color:var(--t2);padding:5px 0;
+      display:flex;align-items:flex-start;gap:9px;line-height:1.4;
+    }
+    .plan-features li .ico{
+      flex-shrink:0;margin-top:1px;font-size:12px;
+      width:16px;text-align:center;
+    }
+    .ico-check{color:var(--gold2);}
+    .ico-dash{color:var(--t4);}
+
+    .plan-btn{
+      display:block;width:100%;padding:12px 16px;border-radius:10px;
+      font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+      text-align:center;text-decoration:none;cursor:pointer;
+      border:1px solid var(--b2);background:transparent;color:var(--t2);
+      transition:all .2s;
+    }
+    .plan-btn:hover{border-color:var(--b3);color:var(--t1);}
+    .plan-btn-gold{
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      border-color:transparent;color:#07070b;
+      box-shadow:0 8px 24px rgba(212,168,67,0.25);
+    }
+    .plan-btn-gold:hover{
+      box-shadow:0 12px 32px rgba(212,168,67,0.35);
+      transform:translateY(-1px);color:#07070b;
+    }
+    .plan-btn-outline{
+      border-color:var(--gborder);color:var(--gold2);
+    }
+    .plan-btn-outline:hover{background:var(--gdim);color:var(--gold2);}
+
+    .plan-note{
+      text-align:center;font-size:11px;color:var(--t4);
+      font-family:'DM Mono',monospace;margin-top:8px;
+    }
+
+    /* ── FAQ / COMPARE ── */
+    .section-title{
+      text-align:center;
+      font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,30px);
+      font-weight:800;color:var(--t1);letter-spacing:-1px;
+      margin-bottom:10px;
+    }
+    .section-sub{
+      text-align:center;font-size:14px;color:var(--t3);
+      margin-bottom:36px;
+    }
+
+    /* ── COMPARE TABLE ── */
+    .compare-wrap{
+      max-width:860px;margin:0 auto 80px;padding:0 24px;
+      position:relative;z-index:1;
+    }
+    .compare-table{
+      width:100%;border-collapse:collapse;
+      background:var(--s1);border:1px solid var(--b2);border-radius:14px;
+      overflow:hidden;
+    }
+    .compare-table th{
+      padding:14px 18px;font-family:'DM Mono',monospace;font-size:10px;
+      font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;
+      border-bottom:1px solid var(--b2);text-align:left;background:var(--s2);
+    }
+    .compare-table th:not(:first-child){text-align:center;}
+    .compare-table td{
+      padding:12px 18px;font-size:13px;color:var(--t2);
+      border-bottom:1px solid var(--b1);
+    }
+    .compare-table td:not(:first-child){text-align:center;}
+    .compare-table tr:last-child td{border-bottom:none;}
+    .compare-table tr:hover td{background:rgba(255,255,255,0.015);}
+    .td-check{color:var(--gold2);font-size:15px;}
+    .td-dash{color:var(--t4);}
+    .td-gold{color:var(--gold2);font-weight:600;font-family:'DM Mono',monospace;font-size:12px;}
+    .col-featured{background:rgba(212,168,67,0.04);}
+
+    /* ── FAQ ── */
+    .faq-wrap{
+      max-width:680px;margin:0 auto 80px;padding:0 24px;
+      position:relative;z-index:1;
+    }
+    .faq-item{
+      border-bottom:1px solid var(--b1);padding:18px 0;
+    }
+    .faq-item:last-child{border-bottom:none;}
+    .faq-q{
+      font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+      color:var(--t1);cursor:pointer;display:flex;justify-content:space-between;
+      align-items:center;gap:12px;
+    }
+    .faq-q::after{
+      content:'＋';color:var(--gold2);font-size:18px;flex-shrink:0;
+      transition:transform .2s;
+    }
+    .faq-item.open .faq-q::after{transform:rotate(45deg);}
+    .faq-a{
+      font-size:13px;color:var(--t3);line-height:1.7;
+      max-height:0;overflow:hidden;transition:max-height .3s ease, padding .3s;
+    }
+    .faq-item.open .faq-a{max-height:300px;padding-top:10px;}
+
+    /* ── GUARANTEE ── */
+    .guarantee{
+      max-width:540px;margin:0 auto 80px;padding:0 24px;
+      text-align:center;position:relative;z-index:1;
+    }
+    .guarantee-card{
+      background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.03));
+      border:1px solid var(--gborder);border-radius:18px;
+      padding:32px 28px;
+    }
+    .guarantee-icon{font-size:36px;margin-bottom:14px;}
+    .guarantee-card h3{
+      font-family:'Syne',sans-serif;font-size:20px;font-weight:700;
+      color:var(--t1);margin-bottom:10px;
+    }
+    .guarantee-card p{font-size:13px;color:var(--t3);line-height:1.7;}
+
+    /* ── FOOTER ── */
+    footer{
+      border-top:1px solid var(--b1);padding:22px 40px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:relative;z-index:1;flex-wrap:wrap;gap:12px;
+    }
+    .ft-logo{display:flex;align-items:center;gap:8px;}
+    .ft-logo-mark{
+      width:20px;height:20px;border-radius:5px;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-size:9px;font-weight:800;color:#07070b;
+    }
+    .ft-logo-txt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);}
+    .ft-logo-txt span{color:var(--gold2);}
+    .ft-copy{font-size:11px;color:var(--t4);font-family:'DM Mono',monospace;}
+    .ft-links{display:flex;gap:16px;flex-wrap:wrap;}
+    .ft-links a{font-size:12px;color:var(--t4);text-decoration:none;transition:color .15s;}
+    .ft-links a:hover{color:var(--t2);}
+
+    @media(max-width:720px){
+      .plans{grid-template-columns:repeat(2,1fr);}
+      .plan-featured{transform:none;}
+      header{padding:0 16px;}
+    }
+    @media(max-width:480px){
+      header{padding:0 12px;}
+      .plans{grid-template-columns:1fr;gap:10px;}
+      .plan-featured{transform:none;}
+      .hero{padding:40px 16px 0;}
+      .plans-wrap{padding:0 16px 60px;}
+      .compare-wrap,.faq-wrap,.guarantee{padding:0 16px;}
+      footer{flex-direction:column;text-align:center;padding:20px 16px;}
+      .ft-links{justify-content:center;}
+      .compare-table{font-size:11px;}
+      .compare-table th,.compare-table td{padding:10px 10px;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">
+    <div class="logo-mark">D</div>
+    <div class="logo-text">Data<span>Mind</span></div>
+  </a>
+  <a class="header-back" href="/">← На главную</a>
+</header>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-tag">Тарифы и цены</div>
+  <h1>Простые цены.<br><em>Никаких сюрпризов.</em></h1>
+  <p class="hero-sub">Начните бесплатно — без карты. Платите только когда убедитесь в пользе.</p>
+
+  <!-- Billing toggle -->
+  <div class="billing-toggle">
+    <span class="toggle-label active" id="lbl-month">Помесячно</span>
+    <div class="toggle-track" id="billing-toggle" onclick="toggleBilling()">
+      <div class="toggle-thumb"></div>
+    </div>
+    <span class="toggle-label" id="lbl-year">Годовая</span>
+    <span class="save-badge">−27%</span>
+  </div>
+</div>
+
+<!-- ── PLANS ── -->
+<div class="plans-wrap">
+  <div class="plans">
+
+    <!-- FREE -->
+    <div class="plan">
+      <div class="plan-name">Бесплатно</div>
+      <div class="plan-price-free">$0</div>
+      <div class="plan-period">навсегда</div>
+      <div class="plan-saving">&nbsp;</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="ico ico-check">✦</span>3 анализа всего</li>
+        <li><span class="ico ico-check">✦</span>Все 21 тип анализа</li>
+        <li><span class="ico ico-check">✦</span>Экспорт PDF и Excel</li>
+        <li><span class="ico ico-dash">–</span><span style="color:var(--t4)">История отчётов</span></li>
+        <li><span class="ico ico-dash">–</span><span style="color:var(--t4)">Учёт региона и валюты</span></li>
+        <li><span class="ico ico-dash">–</span><span style="color:var(--t4)">Поддержка</span></li>
+      </ul>
+      <a href="/" class="plan-btn">Начать бесплатно</a>
+    </div>
+
+    <!-- STARTER -->
+    <div class="plan">
+      <div class="plan-name">Старт</div>
+      <div class="plan-price">
+        <sup>$</sup><span class="price-monthly">7</span><span class="price-annual" style="display:none">5</span>
+      </div>
+      <div class="plan-period">/ месяц</div>
+      <div class="plan-saving price-saving-annual" style="display:none">$60/год · экономия $24</div>
+      <div class="plan-saving price-saving-monthly">&nbsp;</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="ico ico-check">✦</span><strong>25 анализов</strong> в месяц</li>
+        <li><span class="ico ico-check">✦</span>Все 21 тип анализа</li>
+        <li><span class="ico ico-check">✦</span>Экспорт PDF и Excel</li>
+        <li><span class="ico ico-check">✦</span>История отчётов</li>
+        <li><span class="ico ico-check">✦</span>Учёт региона и валюты</li>
+        <li><span class="ico ico-dash">–</span><span style="color:var(--t4)">Приоритетная поддержка</span></li>
+      </ul>
+      <a href="https://YOUR_PADDLE_STARTER_LINK" class="plan-btn plan-btn-outline" target="_blank" id="btn-starter-month">Выбрать Старт</a>
+      <a href="https://YOUR_PADDLE_STARTER_YEAR_LINK" class="plan-btn plan-btn-outline" target="_blank" id="btn-starter-year" style="display:none">Выбрать Старт (год)</a>
+      <div class="plan-note">Отмена в любой момент</div>
+    </div>
+
+    <!-- PRO — FEATURED -->
+    <div class="plan plan-featured">
+      <div class="plan-badge">Популярный</div>
+      <div class="plan-name">Про</div>
+      <div class="plan-price">
+        <sup>$</sup><span class="price-monthly">17</span><span class="price-annual" style="display:none">12</span>
+      </div>
+      <div class="plan-period">/ месяц</div>
+      <div class="plan-saving price-saving-annual" style="display:none">$149/год · экономия $55</div>
+      <div class="plan-saving price-saving-monthly">&nbsp;</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="ico ico-check">✦</span><strong>Безлимитные</strong> анализы</li>
+        <li><span class="ico ico-check">✦</span>Все 21 тип анализа</li>
+        <li><span class="ico ico-check">✦</span>Экспорт PDF и Excel</li>
+        <li><span class="ico ico-check">✦</span>История отчётов</li>
+        <li><span class="ico ico-check">✦</span>Учёт региона и валюты</li>
+        <li><span class="ico ico-check">✦</span>Приоритетная поддержка</li>
+      </ul>
+      <a href="https://YOUR_PADDLE_PRO_LINK" class="plan-btn plan-btn-gold" target="_blank" id="btn-pro-month">Выбрать Про</a>
+      <a href="https://YOUR_PADDLE_PRO_YEAR_LINK" class="plan-btn plan-btn-gold" target="_blank" id="btn-pro-year" style="display:none">Про на год</a>
+      <div class="plan-note">Отмена в любой момент</div>
+    </div>
+
+    <!-- PRO YEAR STANDALONE -->
+    <div class="plan" id="plan-year-card">
+      <div class="plan-name">Про · Год</div>
+      <div class="plan-price"><sup>$</sup>149</div>
+      <div class="plan-period">/ год · $12.4 в мес</div>
+      <div class="plan-saving" style="color:var(--gold2)">Экономия $55 vs помесячно</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li><span class="ico ico-check">✦</span><strong>Безлимитные</strong> анализы</li>
+        <li><span class="ico ico-check">✦</span>Все 21 тип анализа</li>
+        <li><span class="ico ico-check">✦</span>Экспорт PDF и Excel</li>
+        <li><span class="ico ico-check">✦</span>История отчётов</li>
+        <li><span class="ico ico-check">✦</span>Учёт региона и валюты</li>
+        <li><span class="ico ico-check">✦</span>Приоритетная поддержка</li>
+      </ul>
+      <a href="https://YOUR_PADDLE_PRO_YEAR_LINK" class="plan-btn plan-btn-outline" target="_blank">Про на год</a>
+      <div class="plan-note">Один платёж · без автопродления</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── COMPARE TABLE ── -->
+<div class="compare-wrap">
+  <h2 class="section-title">Сравнение планов</h2>
+  <p class="section-sub">Все функции, которые вы получаете на каждом тарифе</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Функция</th>
+        <th>Бесплатно</th>
+        <th>Старт</th>
+        <th class="col-featured">Про</th>
+        <th>Про Год</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Анализов в месяц</td>
+        <td class="td-gold">3 всего</td>
+        <td class="td-gold">25/мес</td>
+        <td class="td-gold col-featured">∞ безлимит</td>
+        <td class="td-gold">∞ безлимит</td>
+      </tr>
+      <tr>
+        <td>Типов анализа</td>
+        <td class="td-gold">21</td>
+        <td class="td-gold">21</td>
+        <td class="td-gold col-featured">21</td>
+        <td class="td-gold">21</td>
+      </tr>
+      <tr>
+        <td>AI на основе Claude</td>
+        <td><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Экспорт PDF</td>
+        <td><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Экспорт Excel</td>
+        <td><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>История отчётов</td>
+        <td><span class="td-dash">—</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Учёт региона в анализе</td>
+        <td><span class="td-dash">—</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Учёт валюты в анализе</td>
+        <td><span class="td-dash">—</span></td>
+        <td><span class="td-check">✦</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Приоритетная поддержка</td>
+        <td><span class="td-dash">—</span></td>
+        <td><span class="td-dash">—</span></td>
+        <td class="col-featured"><span class="td-check">✦</span></td>
+        <td><span class="td-check">✦</span></td>
+      </tr>
+      <tr>
+        <td>Цена</td>
+        <td class="td-gold">$0</td>
+        <td class="td-gold">$7/мес</td>
+        <td class="td-gold col-featured">$17/мес</td>
+        <td class="td-gold">$149/год</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── GUARANTEE ── -->
+<div class="guarantee">
+  <div class="guarantee-card">
+    <div class="guarantee-icon">🛡️</div>
+    <h3>Гарантия возврата 14 дней</h3>
+    <p>Если в первые 14 дней после оплаты сервис вам не подойдёт и вы использовали менее 5 анализов — вернём деньги полностью. Без вопросов.</p>
+  </div>
+</div>
+
+<!-- ── FAQ ── -->
+<div class="faq-wrap">
+  <h2 class="section-title">Частые вопросы</h2>
+  <p class="section-sub">Ответы на главные вопросы об оплате и работе сервиса</p>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Можно ли отменить подписку в любой момент?</div>
+    <div class="faq-a">Да, вы можете отменить подписку в любое время. После отмены вы сохраняете доступ до конца оплаченного периода. Никаких скрытых платежей или штрафов.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Что будет с анализами после отмены?</div>
+    <div class="faq-a">История ваших анализов сохраняется в личном кабинете. После перехода на бесплатный план вы сможете просматривать старые отчёты, но не сможете создавать новые сверх бесплатного лимита.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Как считаются 25 анализов в плане Старт?</div>
+    <div class="faq-a">Счётчик сбрасывается 1-го числа каждого месяца. Неиспользованные анализы не переносятся на следующий месяц. Каждый запуск AI-анализа по любой форме считается за 1 анализ.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Какие способы оплаты принимаются?</div>
+    <div class="faq-a">Платежи обрабатываются через Paddle — принимаются Visa, Mastercard и PayPal. Данные карты не хранятся на наших серверах. Все транзакции защищены.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Насколько точны AI-анализы?</div>
+    <div class="faq-a">Качество анализа зависит от полноты введённых данных. Чем точнее данные — тем конкретнее рекомендации. Анализы носят информационный характер и не заменяют консультацию профессионального финансиста или бизнес-аналитика.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Есть ли скидки для команд или агентств?</div>
+    <div class="faq-a">На данный момент командные тарифы в разработке. Если вы хотите использовать сервис для нескольких бизнесов или клиентов — напишите нам, обсудим индивидуальные условия.</div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-logo">
+    <div class="ft-logo-mark">D</div>
+    <div class="ft-logo-txt">Data<span>Mind</span></div>
+  </div>
+  <div class="ft-copy">© 2025 DataMind · AI-аналитика для бизнеса</div>
+  <div class="ft-links">
+    <a href="/">Главная</a>
+    <a href="/pricing.html">Цены</a>
+    <a href="/terms.html">Условия</a>
+    <a href="/dashboard.html">Кабинет</a>
+  </div>
+</footer>
+
+<script>
+  let isAnnual = false;
+
+  function toggleBilling() {
+    isAnnual = !isAnnual;
+    const track = document.getElementById('billing-toggle');
+    const lblM  = document.getElementById('lbl-month');
+    const lblY  = document.getElementById('lbl-year');
+
+    track.classList.toggle('annual', isAnnual);
+    lblM.classList.toggle('active', !isAnnual);
+    lblY.classList.toggle('active', isAnnual);
+
+    // Toggle prices
+    document.querySelectorAll('.price-monthly').forEach(el => el.style.display = isAnnual ? 'none' : 'inline');
+    document.querySelectorAll('.price-annual').forEach(el => el.style.display = isAnnual ? 'inline' : 'none');
+    document.querySelectorAll('.price-saving-annual').forEach(el => el.style.display = isAnnual ? 'block' : 'none');
+    document.querySelectorAll('.price-saving-monthly').forEach(el => el.style.display = isAnnual ? 'none' : 'block');
+
+    // Toggle buttons
+    document.getElementById('btn-starter-month').style.display = isAnnual ? 'none' : 'block';
+    document.getElementById('btn-starter-year').style.display  = isAnnual ? 'block' : 'none';
+    document.getElementById('btn-pro-month').style.display     = isAnnual ? 'none' : 'block';
+    document.getElementById('btn-pro-year').style.display      = isAnnual ? 'block' : 'none';
+  }
+
+  function toggleFaq(el) {
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
