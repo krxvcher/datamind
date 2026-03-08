@@ -139,12 +139,12 @@
       margin-bottom:16px;
     }
     .plan-price{
-      font-family:'Syne',sans-serif;font-size:40px;font-weight:800;
-      color:var(--t1);line-height:1;margin-bottom:4px;letter-spacing:-2px;
+      font-family:'DM Mono',monospace;font-size:36px;font-weight:500;
+      color:var(--t1);line-height:1;margin-bottom:4px;letter-spacing:-1px;
     }
-    .plan-price sup{font-size:20px;font-weight:600;letter-spacing:0;vertical-align:top;margin-top:6px;display:inline-block;}
+    .plan-price sup{font-size:16px;font-weight:400;letter-spacing:0;vertical-align:top;margin-top:3px;display:inline-block;}
     .plan-price-free{
-      font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+      font-family:'DM Mono',monospace;font-size:36px;font-weight:500;
       color:var(--t1);line-height:1;margin-bottom:4px;
     }
     .plan-period{
@@ -604,6 +604,9 @@
     document.getElementById('btn-starter-year').style.display  = isAnnual ? 'block' : 'none';
     document.getElementById('btn-pro-month').style.display     = isAnnual ? 'none' : 'block';
     document.getElementById('btn-pro-year').style.display      = isAnnual ? 'block' : 'none';
+    // Скрываем отдельную карточку "Про · Год" при годовом — она уже внутри Про
+    const yc = document.getElementById('plan-year-card');
+    if (yc) yc.style.display = isAnnual ? 'none' : '';
   }
 
   function toggleFaq(el) {
