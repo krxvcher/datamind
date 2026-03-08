@@ -660,7 +660,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.sel-wrap'))document.querySelectorAll('.sel-wrap').forEach(w=>w.classList.remove('open'));
 });
 function setCur(code,sym,display,el){
-  cSym=sym;cCode=code;
+  cSym=sym;cCode=code;cCurLabel=display;
   document.getElementById('cdisplay').textContent=display;
   document.getElementById('csym').textContent=sym;
   document.getElementById('ccode').textContent=code;
