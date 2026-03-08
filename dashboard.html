@@ -16,7 +16,7 @@
   --r:14px;--r2:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{font-size:110%;scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
@@ -34,14 +34,17 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;
   border-bottom:1px solid var(--b2);}
 .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
 .logo-mark{
-  width:26px;height:26px;border-radius:7px;
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
   background:linear-gradient(135deg,var(--gold2),var(--gold));
   display:flex;align-items:center;justify-content:center;
-  font-family:'DM Mono',monospace;font-size:13px;font-weight:500;
+  font-family:'DM Mono',monospace;font-size:14px;font-weight:500;
   color:#07070b;letter-spacing:-0.5px;
-  box-shadow:0 0 16px rgba(212,168,67,.28);
+  box-shadow:0 0 20px rgba(212,168,67,.35);
 }
-.logo-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--t1);}
+.logo-text{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+  letter-spacing:-.3px;color:#ffffff;
+}
 .logo-text span{color:var(--gold2);}
 .header-right{display:flex;align-items:center;gap:8px;}
 .user-email{font-family:'DM Mono',monospace;font-size:11px;color:var(--t3);}
@@ -257,7 +260,45 @@ h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;
   .btxt{font-size:12px;}
   .brow{gap:6px;padding:4px 0;}
 }
-</style>
+
+.ft-logo-txt span{color:var(--gold2);}
+.ft-links a:hover{color:#ffffff;}
+.ft-logo{display:flex;align-items:center;gap:9px;}
+.ft-links{display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--b2);padding:26px 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:1;flex-wrap:wrap;gap:14px;
+}
+.ft-logo{display:flex;align-items:center;gap:9px;}
+.ft-logo-mark{
+  width:24px;height:24px;border-radius:6px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;
+  color:#07070b;letter-spacing:-0.5px;
+  box-shadow:0 0 12px rgba(212,168,67,.25);
+}
+.ft-logo-txt{
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  color:#ffffff;letter-spacing:-.2px;
+}
+.ft-logo-txt span{color:var(--gold2);}
+.ft-copy{
+  font-family:'DM Mono',monospace;font-size:12px;
+  font-weight:400;color:rgba(255,255,255,0.5);letter-spacing:.2px;
+}
+.ft-links{display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.ft-links a{
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;
+  color:rgba(255,255,255,0.65);text-decoration:none;transition:color .15s;
+}
+.ft-links a:hover{color:#ffffff;}
+@media(max-width:480px){
+  footer{flex-direction:column;text-align:center;padding:20px 16px;gap:10px;}
+  .ft-links{justify-content:center;}
+}</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -623,5 +664,20 @@ function exportPDF(id) {
 }
 
 </script>
+
+<footer>
+  <div class="ft-logo">
+    <div class="ft-logo-mark">S</div>
+    <div class="ft-logo-txt">Stats<span>Fai</span></div>
+  </div>
+  <div class="ft-copy">© 2026 StatsFai · AI-аналитика для бизнеса</div>
+  <div class="ft-links">
+    <a href="/">Главная</a>
+    <a href="/pricing.html">Цены</a>
+    <a href="/terms.html">Условия</a>
+    <a href="/dashboard.html">Кабинет</a>
+    <a href="/auth.html">Войти</a>
+  </div>
+</footer>
 </body>
 </html>
