@@ -20,9 +20,10 @@ const supabase = createClient(
 // Заполни после создания продуктов в Paddle Dashboard → Catalog → Products
 // Price ID выглядит как: pri_01abc123...
 const PRICE_PLANS = {
-  'pri_STARTER_MONTHLY_ID': { plan: 'starter', analyses_limit: 25 },
-  'pri_PRO_MONTHLY_ID':     { plan: 'pro',     analyses_limit: 999999 },
-  'pri_PRO_YEARLY_ID':      { plan: 'pro',     analyses_limit: 999999 },
+  'pri_01kk7mgnb2nym0se2ztbfst2g3': { plan: 'starter', analyses_limit: 25 },
+  'pri_01kk7n60qksxh307pgnssbre3c': { plan: 'starter', analyses_limit: 25 },
+  'pri_01kk7mkf5c56zpf1wfmfy6wph0': { plan: 'pro',     analyses_limit: 999999 },
+  'pri_01kk7n8am4qmz0r7gv4gq60vs3': { plan: 'pro',     analyses_limit: 999999 },
 };
 
 // ── VERIFY PADDLE SIGNATURE ─────────────────────────────────────────────────
