@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Условия использования — DataMind</title>
+  <meta name="description" content="Условия использования сервиса DataMind — AI-аналитика для бизнеса."/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#07070b;--s1:#0d0d13;--s2:#131318;--s3:#1a1a22;--s4:#22222c;
+      --b1:rgba(255,255,255,0.045);--b2:rgba(255,255,255,0.085);--b3:rgba(255,255,255,0.14);
+      --gold:#d4a843;--gold2:#e8c56a;--gdim:rgba(212,168,67,0.1);--gborder:rgba(212,168,67,0.22);
+      --t1:#ffffff;--t2:#d8d8e8;--t3:#9898b0;--t4:#4a4a62;
+      --r:14px;--r2:10px;
+    }
+    html{scroll-behavior:smooth;}
+    body{
+      background:var(--bg);color:var(--t2);
+      font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;
+      min-height:100vh;
+    }
+    body::after{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      opacity:.018;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* ── HEADER ── */
+    header{
+      position:sticky;top:0;z-index:50;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 40px;height:56px;
+      background:rgba(7,7,11,0.88);backdrop-filter:blur(28px);
+      border-bottom:1px solid var(--b2);
+    }
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+    .logo-mark{
+      width:26px;height:26px;border-radius:7px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#07070b;
+      box-shadow:0 0 18px rgba(212,168,67,.32);
+    }
+    .logo-text{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--t1);}
+    .logo-text span{color:var(--gold2);}
+    .header-back{
+      font-family:'DM Mono',monospace;font-size:12px;color:var(--t3);
+      text-decoration:none;display:flex;align-items:center;gap:6px;
+      transition:color .15s;
+    }
+    .header-back:hover{color:var(--t1);}
+
+    /* ── MAIN ── */
+    main{
+      max-width:720px;margin:0 auto;padding:60px 24px 100px;
+      position:relative;z-index:1;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header{
+      margin-bottom:48px;padding-bottom:32px;
+      border-bottom:1px solid var(--b1);
+    }
+    .page-tag{
+      display:inline-flex;align-items:center;gap:7px;
+      font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;
+      background:var(--s1);border:1px solid var(--b2);
+      padding:5px 12px;border-radius:20px;margin-bottom:20px;
+    }
+    .page-tag::before{content:'◆';color:var(--gold2);font-size:8px;}
+    h1{
+      font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,38px);
+      font-weight:800;color:var(--t1);line-height:1.15;
+      letter-spacing:-1px;margin-bottom:12px;
+    }
+    .page-meta{
+      font-family:'DM Mono',monospace;font-size:11px;color:var(--t4);
+    }
+
+    /* ── CONTENT ── */
+    .toc{
+      background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);
+      padding:20px 24px;margin-bottom:40px;
+    }
+    .toc-title{
+      font-family:'DM Mono',monospace;font-size:10px;font-weight:500;
+      color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;
+      margin-bottom:12px;
+    }
+    .toc a{
+      display:block;font-size:13px;color:var(--t3);text-decoration:none;
+      padding:3px 0;transition:color .15s;
+    }
+    .toc a:hover{color:var(--gold2);}
+    .toc a::before{content:'→ ';color:var(--gold);font-size:11px;}
+
+    .section{margin-bottom:40px;}
+    .section-anchor{display:block;position:relative;top:-80px;visibility:hidden;}
+
+    h2{
+      font-family:'Syne',sans-serif;font-size:18px;font-weight:700;
+      color:var(--t1);margin-bottom:14px;
+      padding-left:14px;border-left:3px solid var(--gold2);
+      letter-spacing:-.3px;
+    }
+    h3{
+      font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+      color:var(--gold2);margin:18px 0 8px;
+      font-style:normal;
+    }
+    p{color:var(--t2);margin-bottom:12px;font-size:14px;line-height:1.75;}
+    p:last-child{margin-bottom:0;}
+
+    ul{list-style:none;margin-bottom:12px;}
+    ul li{
+      position:relative;padding-left:18px;
+      font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:6px;
+    }
+    ul li::before{
+      content:'–';position:absolute;left:0;
+      color:var(--gold2);font-weight:600;
+    }
+
+    .highlight-box{
+      background:var(--s1);border:1px solid var(--gborder);
+      border-radius:var(--r2);padding:16px 18px;margin:16px 0;
+    }
+    .highlight-box p{font-size:13px;color:var(--t3);margin:0;}
+    .highlight-box strong{color:var(--gold2);}
+
+    .contact-block{
+      background:linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.03));
+      border:1px solid var(--gborder);border-radius:var(--r);
+      padding:24px;text-align:center;margin-top:48px;
+    }
+    .contact-block p{font-size:13px;color:var(--t3);margin-bottom:8px;}
+    .contact-email{
+      font-family:'DM Mono',monospace;font-size:14px;font-weight:500;
+      color:var(--gold2);text-decoration:none;
+    }
+    .contact-email:hover{color:var(--t1);}
+
+    /* ── FOOTER ── */
+    footer{
+      border-top:1px solid var(--b1);padding:22px 40px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:relative;z-index:1;flex-wrap:wrap;gap:12px;
+    }
+    .ft-logo{display:flex;align-items:center;gap:8px;}
+    .ft-logo-mark{
+      width:20px;height:20px;border-radius:5px;
+      background:linear-gradient(135deg,var(--gold2),var(--gold));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-size:9px;font-weight:800;color:#07070b;
+    }
+    .ft-logo-txt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t1);}
+    .ft-logo-txt span{color:var(--gold2);}
+    .ft-copy{font-size:11px;color:var(--t4);font-family:'DM Mono',monospace;}
+    .ft-links{display:flex;gap:16px;flex-wrap:wrap;}
+    .ft-links a{font-size:12px;color:var(--t4);text-decoration:none;transition:color .15s;}
+    .ft-links a:hover{color:var(--t2);}
+
+    @media(max-width:480px){
+      header{padding:0 16px;}
+      main{padding:40px 16px 80px;}
+      footer{flex-direction:column;text-align:center;padding:20px 16px;gap:10px;}
+      .ft-links{justify-content:center;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">
+    <div class="logo-mark">D</div>
+    <div class="logo-text">Data<span>Mind</span></div>
+  </a>
+  <a class="header-back" href="/">← На главную</a>
+</header>
+
+<main>
+  <div class="page-header">
+    <div class="page-tag">Юридический документ</div>
+    <h1>Условия использования</h1>
+    <div class="page-meta">Последнее обновление: март 2025 г.</div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">Содержание</div>
+    <a href="#s1">1. Общие положения</a>
+    <a href="#s2">2. Описание сервиса</a>
+    <a href="#s3">3. Регистрация и аккаунт</a>
+    <a href="#s4">4. Подписка и оплата</a>
+    <a href="#s5">5. Возврат средств</a>
+    <a href="#s6">6. Правила использования</a>
+    <a href="#s7">7. Интеллектуальная собственность</a>
+    <a href="#s8">8. Конфиденциальность данных</a>
+    <a href="#s9">9. Отказ от гарантий</a>
+    <a href="#s10">10. Ограничение ответственности</a>
+    <a href="#s11">11. Изменение условий</a>
+    <a href="#s12">12. Прекращение доступа</a>
+    <a href="#s13">13. Контактная информация</a>
+  </div>
+
+  <!-- 1 -->
+  <div class="section">
+    <span class="section-anchor" id="s1"></span>
+    <h2>1. Общие положения</h2>
+    <p>Настоящие Условия использования (далее — «Условия») регулируют отношения между сервисом DataMind (далее — «Сервис», «мы») и пользователем (далее — «Пользователь», «вы») при использовании веб-сайта statsfai.com и всех связанных с ним услуг.</p>
+    <p>Получая доступ к Сервису или используя его, вы подтверждаете, что ознакомились с настоящими Условиями, понимаете их и соглашаетесь ими руководствоваться. Если вы не согласны с какими-либо положениями, пожалуйста, прекратите использование Сервиса.</p>
+    <div class="highlight-box">
+      <p><strong>Важно:</strong> Использование Сервиса означает полное и безоговорочное принятие настоящих Условий. Минимальный возраст для использования Сервиса — 18 лет.</p>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="section">
+    <span class="section-anchor" id="s2"></span>
+    <h2>2. Описание сервиса</h2>
+    <p>DataMind — это онлайн-сервис AI-аналитики для малого и среднего бизнеса. Сервис предоставляет:</p>
+    <ul>
+      <li>Автоматический анализ бизнес-данных на основе искусственного интеллекта</li>
+      <li>Генерацию рекомендаций, прогнозов и отчётов по различным направлениям бизнеса</li>
+      <li>Инструменты анализа для интернет-магазинов, кафе и ресторанов, фрилансеров, розничных магазинов и контент-мейкеров</li>
+      <li>Экспорт результатов анализа в форматы PDF и Excel</li>
+      <li>Хранение истории анализов в личном кабинете</li>
+    </ul>
+    <p>Анализ генерируется с использованием языковых моделей третьих сторон (Anthropic Claude). Результаты носят информационный и рекомендательный характер и не являются профессиональной финансовой, юридической или бухгалтерской консультацией.</p>
+  </div>
+
+  <!-- 3 -->
+  <div class="section">
+    <span class="section-anchor" id="s3"></span>
+    <h2>3. Регистрация и аккаунт</h2>
+    <h3>3.1 Создание аккаунта</h3>
+    <p>Для получения полного доступа к Сервису требуется регистрация с использованием действующего адреса электронной почты. Вы несёте ответственность за сохранность учётных данных и за все действия, совершённые под вашим аккаунтом.</p>
+    <h3>3.2 Достоверность данных</h3>
+    <p>При регистрации вы обязуетесь предоставить достоверную и актуальную информацию. Использование чужих данных или создание фиктивных аккаунтов запрещено.</p>
+    <h3>3.3 Безопасность</h3>
+    <p>При обнаружении несанкционированного доступа к вашему аккаунту вы обязаны незамедлительно уведомить нас по адресу, указанному в разделе «Контакты». Мы не несём ответственности за ущерб, причинённый в результате несанкционированного использования вашего аккаунта.</p>
+  </div>
+
+  <!-- 4 -->
+  <div class="section">
+    <span class="section-anchor" id="s4"></span>
+    <h2>4. Подписка и оплата</h2>
+    <h3>4.1 Тарифные планы</h3>
+    <p>Сервис предоставляется на следующих условиях:</p>
+    <ul>
+      <li><strong>Бесплатный план:</strong> 3 анализа без ограничения по времени, без привязки карты</li>
+      <li><strong>Старт:</strong> 25 анализов в месяц, ежемесячная подписка $7/месяц</li>
+      <li><strong>Про:</strong> безлимитные анализы, ежемесячная подписка $17/месяц</li>
+      <li><strong>Про Год:</strong> безлимитные анализы, годовая подписка $149/год ($12.4/месяц)</li>
+    </ul>
+    <h3>4.2 Обработка платежей</h3>
+    <p>Платежи обрабатываются через сервис Paddle (paddle.com). Мы не храним данные банковских карт. Все транзакции защищены стандартами безопасности PCI DSS.</p>
+    <h3>4.3 Автоматическое продление</h3>
+    <p>Подписки автоматически продлеваются в конце каждого расчётного периода. Вы можете отменить автопродление в любое время в личном кабинете или через службу поддержки.</p>
+    <h3>4.4 Изменение тарифа</h3>
+    <p>Вы вправе изменить тарифный план в любое время. Переход на более высокий тариф вступает в силу немедленно. При переходе на более низкий тариф изменения применяются с начала следующего расчётного периода.</p>
+  </div>
+
+  <!-- 5 -->
+  <div class="section">
+    <span class="section-anchor" id="s5"></span>
+    <h2>5. Возврат средств</h2>
+    <p>Мы предоставляем возврат средств в течение <strong>14 дней</strong> с момента первой оплаты подписки при условии, что вы использовали менее 5 анализов за этот период.</p>
+    <p>Возврат не производится:</p>
+    <ul>
+      <li>Если с момента оплаты прошло более 14 дней</li>
+      <li>Если было выполнено 5 и более анализов</li>
+      <li>При повторной покупке того же тарифа</li>
+    </ul>
+    <p>Для запроса возврата обратитесь в поддержку, указав email аккаунта и причину запроса. Возврат осуществляется в течение 5–10 рабочих дней.</p>
+  </div>
+
+  <!-- 6 -->
+  <div class="section">
+    <span class="section-anchor" id="s6"></span>
+    <h2>6. Правила использования</h2>
+    <h3>6.1 Разрешённое использование</h3>
+    <p>Сервис предназначен исключительно для законного использования в личных и коммерческих целях в соответствии с настоящими Условиями.</p>
+    <h3>6.2 Запрещённые действия</h3>
+    <p>При использовании Сервиса запрещено:</p>
+    <ul>
+      <li>Автоматизированный сбор данных (парсинг, скрейпинг) без письменного разрешения</li>
+      <li>Попытки получить несанкционированный доступ к системам Сервиса</li>
+      <li>Передача доступа к аккаунту третьим лицам или продажа доступа</li>
+      <li>Использование Сервиса для создания конкурирующих продуктов</li>
+      <li>Размещение ложных, вводящих в заблуждение или незаконных данных</li>
+      <li>Нарушение прав интеллектуальной собственности третьих сторон</li>
+    </ul>
+  </div>
+
+  <!-- 7 -->
+  <div class="section">
+    <span class="section-anchor" id="s7"></span>
+    <h2>7. Интеллектуальная собственность</h2>
+    <p>Все элементы Сервиса — включая дизайн, код, тексты, логотипы и алгоритмы — являются интеллектуальной собственностью DataMind и защищены законодательством об авторском праве.</p>
+    <p>Результаты анализов, сгенерированные Сервисом на основе введённых вами данных, передаются вам для личного и коммерческого использования. Вы не вправе перепродавать или публично распространять результаты анализов как самостоятельный продукт.</p>
+  </div>
+
+  <!-- 8 -->
+  <div class="section">
+    <span class="section-anchor" id="s8"></span>
+    <h2>8. Конфиденциальность данных</h2>
+    <p>Мы обрабатываем ваши персональные данные в соответствии с Политикой конфиденциальности. Данные, которые вы вводите в формы анализа, используются исключительно для генерации результатов и не передаются третьим лицам, за исключением API-провайдеров (Anthropic), которые обрабатывают запросы в соответствии со своими политиками конфиденциальности.</p>
+    <p>Мы применяем технические и организационные меры для защиты ваших данных от несанкционированного доступа, изменения или раскрытия.</p>
+  </div>
+
+  <!-- 9 -->
+  <div class="section">
+    <span class="section-anchor" id="s9"></span>
+    <h2>9. Отказ от гарантий</h2>
+    <p>Сервис предоставляется «как есть» и «по мере доступности» без каких-либо явных или подразумеваемых гарантий.</p>
+    <p>Мы не гарантируем:</p>
+    <ul>
+      <li>Что результаты AI-анализа будут точными, полными или применимы к вашей конкретной ситуации</li>
+      <li>Непрерывную работу Сервиса без технических сбоев</li>
+      <li>Что рекомендации Сервиса приведут к конкретным финансовым результатам</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>Важно:</strong> Результаты анализов являются информационными рекомендациями. Перед принятием бизнес-решений рекомендуем консультироваться с профессиональными специалистами.</p>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="section">
+    <span class="section-anchor" id="s10"></span>
+    <h2>10. Ограничение ответственности</h2>
+    <p>В максимальной степени, допустимой применимым законодательством, DataMind не несёт ответственности за косвенные, случайные, специальные или последующие убытки, включая упущенную выгоду, возникшие в результате использования или невозможности использования Сервиса.</p>
+    <p>Совокупная ответственность Сервиса перед вами по любому иску не может превышать сумму, уплаченную вами за подписку в течение последних трёх месяцев.</p>
+  </div>
+
+  <!-- 11 -->
+  <div class="section">
+    <span class="section-anchor" id="s11"></span>
+    <h2>11. Изменение условий</h2>
+    <p>Мы оставляем за собой право изменять настоящие Условия в любое время. При внесении существенных изменений мы уведомим вас по электронной почте не менее чем за 14 дней до вступления изменений в силу.</p>
+    <p>Продолжение использования Сервиса после вступления изменений в силу означает ваше согласие с обновлёнными Условиями.</p>
+  </div>
+
+  <!-- 12 -->
+  <div class="section">
+    <span class="section-anchor" id="s12"></span>
+    <h2>12. Прекращение доступа</h2>
+    <p>Вы можете удалить аккаунт в любое время, обратившись в поддержку. При удалении аккаунта ваши данные будут удалены в течение 30 дней.</p>
+    <p>Мы вправе приостановить или прекратить ваш доступ к Сервису в случае нарушения настоящих Условий, без предварительного уведомления и без возврата средств за неиспользованный период подписки.</p>
+  </div>
+
+  <!-- 13 -->
+  <div class="section">
+    <span class="section-anchor" id="s13"></span>
+    <h2>13. Контактная информация</h2>
+    <p>По всем вопросам, связанным с настоящими Условиями, использованием Сервиса, оплатой или возвратами, обращайтесь:</p>
+  </div>
+
+  <div class="contact-block">
+    <p>Служба поддержки DataMind</p>
+    <a class="contact-email" href="mailto:support@statsfai.com">support@statsfai.com</a>
+    <p style="margin-top:10px;">Время ответа: в течение 24 часов в рабочие дни</p>
+  </div>
+</main>
+
+<footer>
+  <div class="ft-logo">
+    <div class="ft-logo-mark">D</div>
+    <div class="ft-logo-txt">Data<span>Mind</span></div>
+  </div>
+  <div class="ft-copy">© 2025 DataMind · AI-аналитика для бизнеса</div>
+  <div class="ft-links">
+    <a href="/">Главная</a>
+    <a href="/pricing.html">Цены</a>
+    <a href="/terms.html">Условия</a>
+    <a href="/dashboard.html">Кабинет</a>
+  </div>
+</footer>
+
+</body>
+</html>
